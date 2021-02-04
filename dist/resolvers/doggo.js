@@ -71,7 +71,7 @@ __decorate([
 ], DoggoResolver.prototype, "dogs", null);
 __decorate([
     type_graphql_1.Query(() => Doggo_1.Doggo, { nullable: true }),
-    __param(0, type_graphql_1.Arg('id', () => type_graphql_1.Int)),
+    __param(0, type_graphql_1.Arg("id", () => type_graphql_1.Int)),
     __param(1, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Object]),
@@ -79,7 +79,7 @@ __decorate([
 ], DoggoResolver.prototype, "dog", null);
 __decorate([
     type_graphql_1.Mutation(() => Doggo_1.Doggo, { nullable: true }),
-    __param(0, type_graphql_1.Arg('name', () => String)),
+    __param(0, type_graphql_1.Arg("name", () => String)),
     __param(1, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),
@@ -87,8 +87,8 @@ __decorate([
 ], DoggoResolver.prototype, "createDog", null);
 __decorate([
     type_graphql_1.Mutation(() => Doggo_1.Doggo, { nullable: true }),
-    __param(0, type_graphql_1.Arg('id', () => type_graphql_1.Int)),
-    __param(1, type_graphql_1.Arg('name', () => String)),
+    __param(0, type_graphql_1.Arg("id", () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Arg("name", () => String)),
     __param(2, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, String, Object]),
@@ -96,7 +96,7 @@ __decorate([
 ], DoggoResolver.prototype, "updateDog", null);
 __decorate([
     type_graphql_1.Mutation(() => Boolean, { nullable: true }),
-    __param(0, type_graphql_1.Arg('id', () => type_graphql_1.Int)),
+    __param(0, type_graphql_1.Arg("id", () => type_graphql_1.Int)),
     __param(1, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Object]),

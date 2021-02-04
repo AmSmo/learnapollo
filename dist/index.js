@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = require("@mikro-orm/core");
+const constants_1 = require("./constants");
 require("reflect-metadata");
 const mikro_orm_config_1 = __importDefault(require("./mikro-orm.config"));
 const express_1 = __importDefault(require("express"));
@@ -20,26 +21,47 @@ const apollo_server_express_1 = require("apollo-server-express");
 const type_graphql_1 = require("type-graphql");
 const doggo_1 = require("./resolvers/doggo");
 const user_1 = require("./resolvers/user");
+const redis_1 = __importDefault(require("redis"));
+const express_session_1 = __importDefault(require("express-session"));
+const connect_redis_1 = __importDefault(require("connect-redis"));
+const keys_1 = require("..config/keys");
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
+    const RedisStore = connect_redis_1.default(express_session_1.default);
+    const redisClient = redis_1.default.createClient();
     const orm = yield core_1.MikroORM.init(mikro_orm_config_1.default);
     yield orm.getMigrator().up();
     const app = express_1.default();
+    app.use(express_session_1.default({
+        name: "kik",
+        store: new RedisStore({
+            client: redisClient,
+            disableTouch: true,
+        }),
+        cookie: {
+            maxAge: 1000 * 60 * 24 * 365,
+            httpOnly: true,
+            secure: constants_1.__prod__,
+            sameSite: "lax",
+        },
+        secret: keys_1.mySecret,
+        resave: false,
+    }));
     const apolloServer = new apollo_server_express_1.ApolloServer({
         schema: yield type_graphql_1.buildSchema({
             resolvers: [doggo_1.DoggoResolver, user_1.UserResolver],
             validate: false,
         }),
-        context: () => ({ em: orm.em })
+        context: ({ req, res }) => ({ em: orm.em, req, res }),
     });
     apolloServer.applyMiddleware({ app });
-    app.get('/', (_, res) => {
+    app.get("/", (_, res) => {
         res.send("POTATO");
     });
     app.listen(5000, () => {
-        console.log('Server successfully created');
+        console.log("Server successfully created");
     });
 });
-main().catch(err => {
+main().catch((err) => {
     console.error(err);
 });
 //# sourceMappingURL=index.js.map

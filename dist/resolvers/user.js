@@ -73,23 +73,60 @@ let UserResolver = class UserResolver {
     }
     register(options, { em }) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (options.username.length <= 2) {
+                return {
+                    errors: [
+                        {
+                            field: "username",
+                            message: "Length must be greater than 2",
+                        },
+                    ],
+                };
+            }
+            if (options.password.length <= 3) {
+                return {
+                    errors: [
+                        {
+                            field: "password",
+                            message: "Length must be greater than 3",
+                        },
+                    ],
+                };
+            }
             const hashedPassword = yield argon2_1.default.hash(options.password);
-            const user = em.create(User_1.User, { username: options.username, password: hashedPassword });
-            yield em.persistAndFlush(user);
-            return user;
+            const user = em.create(User_1.User, {
+                username: options.username,
+                password: hashedPassword,
+            });
+            try {
+                yield em.persistAndFlush(user);
+            }
+            catch (err) {
+                if (err.code == "23505" || err.detail.includes("already exists")) {
+                    return {
+                        errors: [{ field: "username", message: "already in use" }],
+                    };
+                }
+                else {
+                    return {
+                        errors: [{ field: "username", message: "Something went wrong" }],
+                    };
+                }
+            }
+            return { user };
         });
     }
-    login(options, { em }) {
+    login(options, { em, req }) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = yield em.findOne(User_1.User, { username: options.username });
             if (!user) {
                 return {
                     errors: [
                         {
-                            field: 'username',
-                            message: "Username doesn't exist"
-                        }
-                    ]
+                            field: "username",
+                            message: "Username doesn't exist",
+                        },
+                    ],
                 };
             }
             const valid = yield argon2_1.default.verify(user.password, options.password);
@@ -97,12 +134,13 @@ let UserResolver = class UserResolver {
                 return {
                     errors: [
                         {
-                            field: 'password',
-                            message: "Incorrect password"
-                        }
-                    ]
+                            field: "password",
+                            message: "Incorrect password",
+                        },
+                    ],
                 };
             }
+            req.session.userId = user.id;
             return { user };
         });
     }
@@ -115,8 +153,8 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "users", null);
 __decorate([
-    type_graphql_1.Mutation(() => User_1.User),
-    __param(0, type_graphql_1.Arg('options', () => UsernamePasswordInput)),
+    type_graphql_1.Mutation(() => UserResponse),
+    __param(0, type_graphql_1.Arg("options", () => UsernamePasswordInput)),
     __param(1, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [UsernamePasswordInput, Object]),
@@ -124,7 +162,7 @@ __decorate([
 ], UserResolver.prototype, "register", null);
 __decorate([
     type_graphql_1.Mutation(() => UserResponse),
-    __param(0, type_graphql_1.Arg('options', () => UsernamePasswordInput)),
+    __param(0, type_graphql_1.Arg("options", () => UsernamePasswordInput)),
     __param(1, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [UsernamePasswordInput, Object]),
