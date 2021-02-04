@@ -9,7 +9,8 @@
     "startJS": "node dist/index.js",
     "server": "nodemon dist/index.js",
     "frontend": "npm start --prefix graphdog",
-    "dev": "concurrently \"npm run server\" \"npm run frontend\""
+    "dev": "concurrently \"npm run server\" \"npm run frontend\"",
+    "create:migration": "mikro-orm migration:create"
   },
   "author": "Rose Koron",
   "dependencies": {
@@ -20,6 +21,7 @@
     "@mikro-orm/postgresql": "^4.4.2",
     "@types/react-router-dom": "^5.1.7",
     "apollo-server-express": "^2.19.2",
+    "argon2": "^0.27.1",
     "body-parser": "^1.18.3",
     "concurrently": "^5.3.0",
     "express": "^4.17.1",
