@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "watch": "tsc -w",
-    "start": "ts-node src/index.ts",
+    "start": "nodemon dist/index.js",
     "startJS": "node dist/index.js",
     "server": "nodemon dist/index.js",
     "frontend": "npm start --prefix graphdog",
@@ -25,9 +25,9 @@
     "express": "^4.17.1",
     "express-graphql": "^0.7.1",
     "graphql": "^15.5.0",
-    "mongoose": "^5.4.13",
     "nodemon": "^1.18.10",
     "pg": "^8.5.1",
+    "reflect-metadata": "^0.1.13",
     "ts-node": "^9.1.1",
     "type-graphql": "^1.1.1"
   },
