@@ -24,9 +24,7 @@ export const InputField: React.FC<InputFieldProps> = (props) => {
         placeholder={props.placeholder}
         type={props.type}
       />
-      {error ? (
-        <FormErrorMessage>{form.errors.username}</FormErrorMessage>
-      ) : null}
+      {error ? <FormErrorMessage>{error}</FormErrorMessage> : null}
     </FormControl>
   );
 };
