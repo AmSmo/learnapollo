@@ -10,7 +10,7 @@ import { UserResolver } from "./resolvers/user";
 import redis from "redis";
 import session from "express-session";
 import connectRedis from "connect-redis";
-import { mySecret } from "..config/keys";
+import { secretInfo } from "./config/keys";
 import { MyContext } from "./types";
 
 const main = async () => {
@@ -35,8 +35,9 @@ const main = async () => {
         secure: __prod__,
         sameSite: "lax",
       },
-      secret: mySecret,
+      secret: secretInfo.mySecret,
       resave: false,
+      saveUninitialized: false,
     })
   );
 
