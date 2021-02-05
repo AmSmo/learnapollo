@@ -8,7 +8,7 @@
     "start": "nodemon dist/index.js",
     "startJS": "node dist/index.js",
     "server": "nodemon dist/index.js",
-    "frontend": "npm start --prefix graphdog",
+    "frontend": "yarn dev --prefix graphdog",
     "dev": "concurrently \"npm run server\" \"npm run frontend\"",
     "create:migration": "mikro-orm migration:create"
   },
@@ -25,6 +25,7 @@
     "body-parser": "^1.18.3",
     "concurrently": "^5.3.0",
     "connect-redis": "^5.0.0",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-graphql": "^0.7.1",
     "express-session": "^1.17.1",
@@ -38,6 +39,7 @@
   },
   "devDependencies": {
     "@types/connect-redis": "^0.0.16",
+    "@types/cors": "^2.8.9",
     "@types/express": "^4.17.11",
     "@types/express-session": "^1.17.3",
     "@types/node": "^14.14.25",

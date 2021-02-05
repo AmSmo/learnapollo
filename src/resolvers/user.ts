@@ -9,7 +9,6 @@ import {
   Field,
   InputType,
   ObjectType,
-  emitSchemaDefinitionFile,
 } from "type-graphql";
 import argon2 from "argon2";
 
