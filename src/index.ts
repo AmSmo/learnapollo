@@ -13,11 +13,13 @@ import connectRedis from "connect-redis";
 import { secretInfo } from "./config/keys";
 import { MyContext } from "./types";
 import cors from "cors";
+import { User } from "./entities/User";
+
 const main = async () => {
   const RedisStore = connectRedis(session);
-
   const redisClient = redis.createClient();
   const orm = await MikroORM.init(microConfig);
+  await orm.em.nativeDelete(User, {});
   await orm.getMigrator().up();
 
   const app = express();

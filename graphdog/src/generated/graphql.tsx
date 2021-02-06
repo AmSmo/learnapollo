@@ -41,6 +41,7 @@ export type User = {
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
   username: Scalars['String'];
+  email: Scalars['String'];
 };
 
 export type Mutation = {
@@ -48,6 +49,7 @@ export type Mutation = {
   createDog?: Maybe<Doggo>;
   updateDog?: Maybe<Doggo>;
   deleteDog?: Maybe<Scalars['Boolean']>;
+  forgotPassword: Scalars['Boolean'];
   register: UserResponse;
   login: UserResponse;
   logout: Scalars['Boolean'];
@@ -70,8 +72,13 @@ export type MutationDeleteDogArgs = {
 };
 
 
+export type MutationForgotPasswordArgs = {
+  email: Scalars['String'];
+};
+
+
 export type MutationRegisterArgs = {
-  options: UsernamePasswordInput;
+  options: SignUpInput;
 };
 
 
@@ -91,6 +98,12 @@ export type FieldError = {
   message: Scalars['String'];
 };
 
+export type SignUpInput = {
+  username: Scalars['String'];
+  password: Scalars['String'];
+  email: Scalars['String'];
+};
+
 export type UsernamePasswordInput = {
   username: Scalars['String'];
   password: Scalars['String'];
@@ -98,7 +111,7 @@ export type UsernamePasswordInput = {
 
 export type BaseUserInfoFragment = (
   { __typename?: 'User' }
-  & Pick<User, 'id' | 'username'>
+  & Pick<User, 'id' | 'username' | 'email'>
 );
 
 export type LoginMutationVariables = Exact<{
@@ -132,6 +145,7 @@ export type LogoutMutation = (
 export type RegisterMutationVariables = Exact<{
   username: Scalars['String'];
   password: Scalars['String'];
+  email: Scalars['String'];
 }>;
 
 
@@ -175,6 +189,7 @@ export const BaseUserInfoFragmentDoc = gql`
     fragment BaseUserInfo on User {
   id
   username
+  email
 }
     `;
 export const LoginDocument = gql`
@@ -204,8 +219,8 @@ export function useLogoutMutation() {
   return Urql.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument);
 };
 export const RegisterDocument = gql`
-    mutation Register($username: String!, $password: String!) {
-  register(options: {username: $username, password: $password}) {
+    mutation Register($username: String!, $password: String!, $email: String!) {
+  register(options: {username: $username, password: $password, email: $email}) {
     errors {
       field
       message

@@ -22,6 +22,12 @@ class UsernamePasswordInput {
   password: string;
 }
 
+@InputType()
+class SignUpInput extends UsernamePasswordInput {
+  @Field()
+  email: string;
+}
+
 @ObjectType()
 class FieldError {
   @Field()
@@ -57,9 +63,17 @@ export class UserResolver {
     }
   }
 
+  // @Mutation(()=> Boolean)
+  // async forgotPassword(
+  //   @Arg('email') email: string,
+  //   @Ctx() {em, eq}: MyContext
+  // ){
+  //   const user = await em.findOne(User, {email})}
+  // )
+
   @Mutation(() => UserResponse)
   async register(
-    @Arg("options", () => UsernamePasswordInput) options: UsernamePasswordInput,
+    @Arg("options", () => SignUpInput) options: SignUpInput,
     @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
     if (options.username.length <= 2) {
@@ -68,6 +82,16 @@ export class UserResolver {
           {
             field: "username",
             message: "Length must be greater than 2",
+          },
+        ],
+      };
+    }
+    if (options.email.length <= 2) {
+      return {
+        errors: [
+          {
+            field: "email",
+            message: "Must be Valid Email",
           },
         ],
       };
@@ -86,10 +110,12 @@ export class UserResolver {
     const user = em.create(User, {
       username: options.username,
       password: hashedPassword,
+      email: options.email,
     });
     try {
       await em.persistAndFlush(user);
     } catch (err) {
+      console.log(err);
       if (err.code == "23505" || err.detail.includes("already exists")) {
         return {
           errors: [{ field: "username", message: "already in use" }],

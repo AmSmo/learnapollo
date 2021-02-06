@@ -42,6 +42,15 @@ __decorate([
 UsernamePasswordInput = __decorate([
     type_graphql_1.InputType()
 ], UsernamePasswordInput);
+let SignUpInput = class SignUpInput extends UsernamePasswordInput {
+};
+__decorate([
+    type_graphql_1.Field(),
+    __metadata("design:type", String)
+], SignUpInput.prototype, "email", void 0);
+SignUpInput = __decorate([
+    type_graphql_1.InputType()
+], SignUpInput);
 let FieldError = class FieldError {
 };
 __decorate([
@@ -95,6 +104,16 @@ let UserResolver = class UserResolver {
                     ],
                 };
             }
+            if (options.email.length <= 2) {
+                return {
+                    errors: [
+                        {
+                            field: "email",
+                            message: "Must be Valid Email",
+                        },
+                    ],
+                };
+            }
             if (options.password.length <= 3) {
                 return {
                     errors: [
@@ -109,11 +128,13 @@ let UserResolver = class UserResolver {
             const user = em.create(User_1.User, {
                 username: options.username,
                 password: hashedPassword,
+                email: options.email,
             });
             try {
                 yield em.persistAndFlush(user);
             }
             catch (err) {
+                console.log(err);
                 if (err.code == "23505" || err.detail.includes("already exists")) {
                     return {
                         errors: [{ field: "username", message: "already in use" }],
@@ -184,10 +205,10 @@ __decorate([
 ], UserResolver.prototype, "me", null);
 __decorate([
     type_graphql_1.Mutation(() => UserResponse),
-    __param(0, type_graphql_1.Arg("options", () => UsernamePasswordInput)),
+    __param(0, type_graphql_1.Arg("options", () => SignUpInput)),
     __param(1, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [UsernamePasswordInput, Object]),
+    __metadata("design:paramtypes", [SignUpInput, Object]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "register", null);
 __decorate([
