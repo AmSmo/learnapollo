@@ -50,6 +50,7 @@ export type Mutation = {
   deleteDog?: Maybe<Scalars['Boolean']>;
   register: UserResponse;
   login: UserResponse;
+  logout: Scalars['Boolean'];
 };
 
 
@@ -120,6 +121,14 @@ export type LoginMutation = (
   ) }
 );
 
+export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LogoutMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'logout'>
+);
+
 export type RegisterMutationVariables = Exact<{
   username: Scalars['String'];
   password: Scalars['String'];
@@ -138,6 +147,17 @@ export type RegisterMutation = (
       & BaseUserInfoFragment
     )> }
   ) }
+);
+
+export type DoggosQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type DoggosQuery = (
+  { __typename?: 'Query' }
+  & { dogs: Array<(
+    { __typename?: 'Doggo' }
+    & Pick<Doggo, 'id' | 'name'>
+  )> }
 );
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
@@ -174,6 +194,15 @@ export const LoginDocument = gql`
 export function useLoginMutation() {
   return Urql.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument);
 };
+export const LogoutDocument = gql`
+    mutation Logout {
+  logout
+}
+    `;
+
+export function useLogoutMutation() {
+  return Urql.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument);
+};
 export const RegisterDocument = gql`
     mutation Register($username: String!, $password: String!) {
   register(options: {username: $username, password: $password}) {
@@ -190,6 +219,18 @@ export const RegisterDocument = gql`
 
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
+};
+export const DoggosDocument = gql`
+    query Doggos {
+  dogs {
+    id
+    name
+  }
+}
+    `;
+
+export function useDoggosQuery(options: Omit<Urql.UseQueryArgs<DoggosQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<DoggosQuery>({ query: DoggosDocument, ...options });
 };
 export const MeDocument = gql`
     query Me {

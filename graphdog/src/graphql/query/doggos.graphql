@@ -1,0 +1,6 @@
+query Doggos {
+  dogs {
+    id
+    name
+  }
+}
