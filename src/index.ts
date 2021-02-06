@@ -7,7 +7,7 @@ import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { DoggoResolver } from "./resolvers/doggo";
 import { UserResolver } from "./resolvers/user";
-import redis from "redis";
+import Redis from "ioredis";
 import session from "express-session";
 import connectRedis from "connect-redis";
 import { secretInfo } from "./config/keys";
@@ -17,7 +17,7 @@ import { User } from "./entities/User";
 
 const main = async () => {
   const RedisStore = connectRedis(session);
-  const redisClient = redis.createClient();
+  const redis = new Redis();
   const orm = await MikroORM.init(microConfig);
   await orm.em.nativeDelete(User, {});
   await orm.getMigrator().up();
@@ -33,7 +33,7 @@ const main = async () => {
     session({
       name: COOKIE_NAME,
       store: new RedisStore({
-        client: redisClient,
+        client: redis,
         disableTouch: true,
       }),
       cookie: {
@@ -53,7 +53,7 @@ const main = async () => {
       resolvers: [DoggoResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }): MyContext => ({ em: orm.em, req, res }),
+    context: ({ req, res }): MyContext => ({ em: orm.em, req, res, redis }),
   });
 
   apolloServer.applyMiddleware({

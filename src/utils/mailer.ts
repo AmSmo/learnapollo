@@ -1,14 +1,9 @@
 "use strict";
 import nodemailer from "nodemailer";
-import { secretInfo } from "src/config/keys";
+import { secretInfo } from "../config/keys";
 
 // async..await is not allowed in global scope, must use a wrapper
 export async function sendEmail(to: string, text: string, subject: string) {
-  // Generate test SMTP service account from ethereal.email
-  // Only needed if you don't have a real mail account for testing
-  //   let testAccount = await nodemailer.createTestAccount();
-  //   console.log("test account info: ", testAccount);
-  // create reusable transporter object using the default SMTP transport
   let transporter = nodemailer.createTransport({
     host: "smtp.ethereal.email",
     port: 587,

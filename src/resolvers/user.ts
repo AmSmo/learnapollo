@@ -7,26 +7,14 @@ import {
   Arg,
   Mutation,
   Field,
-  InputType,
   ObjectType,
 } from "type-graphql";
 import argon2 from "argon2";
-import { COOKIE_NAME } from "../constants";
-
-@InputType()
-class UsernamePasswordInput {
-  @Field()
-  username: string;
-
-  @Field()
-  password: string;
-}
-
-@InputType()
-class SignUpInput extends UsernamePasswordInput {
-  @Field()
-  email: string;
-}
+import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constants";
+import { UsernamePasswordInput, SignUpInput } from "./UsernamePasswordInput";
+import { validateRegister } from "../utils/validateRegister";
+import { sendEmail } from "../utils/mailer";
+import { v4 } from "uuid";
 
 @ObjectType()
 class FieldError {
@@ -63,49 +51,39 @@ export class UserResolver {
     }
   }
 
-  // @Mutation(()=> Boolean)
-  // async forgotPassword(
-  //   @Arg('email') email: string,
-  //   @Ctx() {em, eq}: MyContext
-  // ){
-  //   const user = await em.findOne(User, {email})}
-  // )
+  @Mutation(() => Boolean)
+  async forgotPassword(
+    @Arg("email") email: string,
+    @Ctx() { em, redis }: MyContext
+  ) {
+    const user = await em.findOne(User, { email });
+    if (!user) {
+      return false;
+    }
+
+    const token = v4();
+
+    await redis.set(
+      FORGET_PASSWORD_PREFIX + token,
+      user.id,
+      "ex",
+      1000 * 60 * 60 * 24 * 3
+    );
+    let text = `<a href="http://localhost:3000/change-password/${token}">Change Password</a>`;
+    await sendEmail(email, text, "New Password");
+    return true;
+  }
 
   @Mutation(() => UserResponse)
   async register(
     @Arg("options", () => SignUpInput) options: SignUpInput,
     @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
-    if (options.username.length <= 2) {
-      return {
-        errors: [
-          {
-            field: "username",
-            message: "Length must be greater than 2",
-          },
-        ],
-      };
+    const errors = validateRegister(options);
+    if (errors) {
+      return { errors };
     }
-    if (options.email.length <= 2) {
-      return {
-        errors: [
-          {
-            field: "email",
-            message: "Must be Valid Email",
-          },
-        ],
-      };
-    }
-    if (options.password.length <= 3) {
-      return {
-        errors: [
-          {
-            field: "password",
-            message: "Length must be greater than 3",
-          },
-        ],
-      };
-    }
+
     const hashedPassword = await argon2.hash(options.password);
     const user = em.create(User, {
       username: options.username,
