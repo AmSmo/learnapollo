@@ -1,0 +1,4 @@
+fragment BaseUserInfo on User {
+  id
+  username
+}
