@@ -23,6 +23,12 @@ export type Query = {
 };
 
 
+export type QueryDogsArgs = {
+  cursor?: Maybe<Scalars['String']>;
+  limit: Scalars['Int'];
+};
+
+
 export type QueryDogArgs = {
   id: Scalars['Int'];
 };
@@ -30,16 +36,21 @@ export type QueryDogArgs = {
 export type Doggo = {
   __typename?: 'Doggo';
   id: Scalars['Int'];
-  createdAt: Scalars['String'];
-  updatedAt: Scalars['String'];
+  createdDate: Scalars['String'];
+  updatedDate: Scalars['String'];
   name: Scalars['String'];
+  ownerId: Scalars['Int'];
+  owner: User;
+  story: Scalars['String'];
+  treats: Scalars['Float'];
+  textSnippet: Scalars['String'];
 };
 
 export type User = {
   __typename?: 'User';
   id: Scalars['Int'];
-  createdAt: Scalars['String'];
-  updatedAt: Scalars['String'];
+  createdDate: Scalars['String'];
+  updatedDate: Scalars['String'];
   username: Scalars['String'];
   email: Scalars['String'];
 };
@@ -58,7 +69,7 @@ export type Mutation = {
 
 
 export type MutationCreateDogArgs = {
-  name: Scalars['String'];
+  options: DoggoInput;
 };
 
 
@@ -91,6 +102,11 @@ export type MutationRegisterArgs = {
 
 export type MutationLoginArgs = {
   options: UsernamePasswordInput;
+};
+
+export type DoggoInput = {
+  name: Scalars['String'];
+  story: Scalars['String'];
 };
 
 export type UserResponse = {
@@ -151,6 +167,19 @@ export type ChangePasswordMutation = (
   ) }
 );
 
+export type CreateDogMutationVariables = Exact<{
+  options: DoggoInput;
+}>;
+
+
+export type CreateDogMutation = (
+  { __typename?: 'Mutation' }
+  & { createDog?: Maybe<(
+    { __typename?: 'Doggo' }
+    & Pick<Doggo, 'id' | 'name' | 'story' | 'ownerId' | 'createdDate' | 'updatedDate'>
+  )> }
+);
+
 export type ForgotPasswordMutationVariables = Exact<{
   email: Scalars['String'];
 }>;
@@ -196,14 +225,17 @@ export type RegisterMutation = (
   ) }
 );
 
-export type DoggosQueryVariables = Exact<{ [key: string]: never; }>;
+export type DoggosQueryVariables = Exact<{
+  limit: Scalars['Int'];
+  cursor?: Maybe<Scalars['String']>;
+}>;
 
 
 export type DoggosQuery = (
   { __typename?: 'Query' }
   & { dogs: Array<(
     { __typename?: 'Doggo' }
-    & Pick<Doggo, 'id' | 'name'>
+    & Pick<Doggo, 'id' | 'name' | 'ownerId' | 'createdDate' | 'updatedDate' | 'textSnippet'>
   )> }
 );
 
@@ -253,6 +285,22 @@ export const ChangePasswordDocument = gql`
 export function useChangePasswordMutation() {
   return Urql.useMutation<ChangePasswordMutation, ChangePasswordMutationVariables>(ChangePasswordDocument);
 };
+export const CreateDogDocument = gql`
+    mutation CreateDog($options: DoggoInput!) {
+  createDog(options: $options) {
+    id
+    name
+    story
+    ownerId
+    createdDate
+    updatedDate
+  }
+}
+    `;
+
+export function useCreateDogMutation() {
+  return Urql.useMutation<CreateDogMutation, CreateDogMutationVariables>(CreateDogDocument);
+};
 export const ForgotPasswordDocument = gql`
     mutation ForgotPassword($email: String!) {
   forgotPassword(email: $email)
@@ -294,10 +342,14 @@ export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
 };
 export const DoggosDocument = gql`
-    query Doggos {
-  dogs {
+    query Doggos($limit: Int!, $cursor: String) {
+  dogs(cursor: $cursor, limit: $limit) {
     id
     name
+    ownerId
+    createdDate
+    updatedDate
+    textSnippet
   }
 }
     `;

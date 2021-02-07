@@ -1,0 +1,10 @@
+mutation CreateDog($options: DoggoInput!) {
+  createDog(options: $options) {
+    id
+    name
+    story
+    ownerId
+    createdDate
+    updatedDate
+  }
+}

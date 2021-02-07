@@ -1,6 +1,10 @@
-query Doggos {
-  dogs {
+query Doggos($limit: Int!, $cursor: String) {
+  dogs(cursor: $cursor, limit: $limit) {
     id
     name
+    ownerId
+    createdDate
+    updatedDate
+    textSnippet
   }
 }
