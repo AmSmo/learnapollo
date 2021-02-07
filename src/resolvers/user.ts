@@ -145,7 +145,7 @@ export class UserResolver {
         };
       }
     }
-    console.log("created": user);
+    console.log("created", user);
     req.session.userId = user.id;
     return { user };
   }

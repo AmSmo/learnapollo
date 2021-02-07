@@ -17,21 +17,22 @@ type InputFieldProps = InputHTMLAttributes<HTMLInputElement> & {
 
 export const InputField: React.FC<InputFieldProps> = (props) => {
   const [field, { error }] = useField(props);
-  let C;
-  if (props.type === "textarea") {
-    C = Textarea;
-  } else {
-    C = Input;
-  }
+  let compProps = {
+    ...field,
+    id: props.name,
+    placeholder: props.placeholder,
+    type: props.type,
+  };
+
   return (
     <FormControl isInvalid={!!error}>
       <FormLabel htmlFor={props.name}>{props.label}</FormLabel>
-      <C
-        {...field}
-        id={props.name}
-        placeholder={props.placeholder}
-        type={props.type}
-      />
+      {props.type === "textarea" ? (
+        <Textarea {...compProps} />
+      ) : (
+        <Input {...compProps} />
+      )}
+
       {error ? <FormErrorMessage>{error}</FormErrorMessage> : null}
     </FormControl>
   );

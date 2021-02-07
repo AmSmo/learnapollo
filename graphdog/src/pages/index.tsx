@@ -2,17 +2,24 @@ import NavBar from "../components/NavBar";
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { useDoggosQuery } from "../generated/graphql";
-import { Box, Heading, Stack, Text } from "@chakra-ui/react";
-import React from "react";
+import { Box, Button, Heading, Link, Stack, Text } from "@chakra-ui/react";
+import React, { useState } from "react";
 import Wrapper from "../components/Wrapper";
+import NextLink from "next/link";
 const Index = () => {
-  const [{ data }] = useDoggosQuery({
-    variables: { limit: 10 },
+  const [variables, setVariables] = useState({
+    limit: 10,
+    cursor: null as null | string,
+  });
+  const [{ data, fetching }] = useDoggosQuery({
+    variables,
   });
   return (
     <div>
       <NavBar />
-      YO!!!
+      <NextLink href="/adopt-dog">
+        <Link ml="auto">Adopt a Dog</Link>
+      </NextLink>
       <br></br>
       <Wrapper variant="regular">
         <Stack spacing={8}>
@@ -26,7 +33,23 @@ const Index = () => {
           ) : (
             <div>Loading..</div>
           )}
+
+          {data ? (
+            <Button
+              isLoading={fetching}
+              onClick={() =>
+                setVariables({
+                  limit: 10,
+                  cursor: data.dogs[data.dogs.length - 1].createdDate,
+                })
+              }
+            >
+              {" "}
+              Load More
+            </Button>
+          ) : null}
         </Stack>
+        {!fetching && !data ? <p>Well That didn't work</p> : null}
       </Wrapper>
     </div>
   );

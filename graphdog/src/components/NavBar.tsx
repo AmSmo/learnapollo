@@ -3,6 +3,8 @@ import { Flex, Button, Box, Link } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 import { isServer } from "../utils/isServer";
+import { withUrqlClient } from "next-urql";
+import { createUrqlClient } from "../utils/createUrqlClient";
 interface NavBarProps {}
 
 const NavBar: React.FC<NavBarProps> = (props) => {
@@ -15,12 +17,12 @@ const NavBar: React.FC<NavBarProps> = (props) => {
   } else if (!data?.me) {
     body = (
       <>
-        <NextLink href="login">
+        <NextLink href="/login" as="div">
           <Link m={8} color="white" fontWeight="700">
             Login
           </Link>
         </NextLink>
-        <NextLink href="register">
+        <NextLink href="/register">
           <Link m={8} color="white" fontWeight="700">
             Register
           </Link>
@@ -30,11 +32,7 @@ const NavBar: React.FC<NavBarProps> = (props) => {
   } else {
     body = (
       <Flex width="20vw" justifyContent="space-around" align="center">
-        <Button
-          onClick={() => logout()}
-          variant="link"
-          isLoading={logoutFetching}
-        >
+        <Button onClick={() => logout()} isLoading={logoutFetching}>
           Logout
         </Button>
         <Box>{data.me.username}</Box>
@@ -48,4 +46,4 @@ const NavBar: React.FC<NavBarProps> = (props) => {
   );
 };
 
-export default NavBar;
+export default withUrqlClient(createUrqlClient)(NavBar);

@@ -4,7 +4,7 @@ import { withUrqlClient } from "next-urql";
 import { useRouter } from "next/router";
 import React from "react";
 import { InputField } from "../components/InputField";
-import Wrapper from "../components/Wrapper";
+import LayOut from "../components/LayOut";
 import { useCreateDogMutation } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { useIsAuth } from "../utils/useIsAuth";
@@ -16,12 +16,12 @@ export const AdoptDog: React.FC<adoptDogProps> = ({}) => {
   useIsAuth();
   const [, createDog] = useCreateDogMutation();
   return (
-    <Wrapper variant="small">
+    <LayOut variant="small">
       <Formik
         initialValues={{ name: "", story: "" }}
         onSubmit={async (values, { setErrors }) => {
           const resp = await createDog({ options: { ...values } });
-          if (!error) {
+          if (!resp.error) {
             router.push("/");
           }
         }}
@@ -46,7 +46,7 @@ export const AdoptDog: React.FC<adoptDogProps> = ({}) => {
           </Form>
         )}
       </Formik>
-    </Wrapper>
+    </LayOut>
   );
 };
 

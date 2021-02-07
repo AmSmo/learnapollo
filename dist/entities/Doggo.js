@@ -60,6 +60,10 @@ __decorate([
     typeorm_1.Column({ type: "int", default: 0 }),
     __metadata("design:type", Number)
 ], Doggo.prototype, "treats", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    __metadata("design:type", String)
+], Doggo.prototype, "textSnippet", void 0);
 Doggo = __decorate([
     type_graphql_1.ObjectType(),
     typeorm_1.Entity()

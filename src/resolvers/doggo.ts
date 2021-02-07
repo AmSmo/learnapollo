@@ -9,27 +9,46 @@ import {
   Field,
   Ctx,
   UseMiddleware,
+  FieldResolver,
+  Root,
 } from "type-graphql";
 import { MyContext } from "../types";
 import { isAuthenticated } from "../middleware/isAuth";
+import { getConnection } from "typeorm";
 
 @InputType()
 class DoggoInput {
   @Field()
   name: string;
   @Field()
-  story: string;
-  @Field()
-  ownerId: number;
-  @Field()
-  treats: number;
+  story?: string;
 }
 
-@Resolver()
+@Resolver(Doggo)
 export class DoggoResolver {
+  @FieldResolver(() => String)
+  textSnippet(@Root() root: Doggo) {
+    return root.story.slice(0, 50) + "...";
+  }
+
   @Query(() => [Doggo])
-  dogs(): Promise<Doggo[]> {
-    return Doggo.find();
+  dogs(
+    @Arg("limit", () => Int) limit: number,
+    @Arg("cursor", () => String, { nullable: true }) cursor: string | null
+  ): Promise<Doggo[]> {
+    const realLimit = Math.min(50, limit);
+    const qb = getConnection()
+      .getRepository(Doggo)
+      .createQueryBuilder("d")
+      .orderBy('"createdDate"', "DESC")
+      .take(realLimit);
+
+    if (cursor) {
+      qb.where('"createdDate" < :cursor', {
+        cursor: new Date(parseInt(cursor)),
+      });
+    }
+    return qb.getMany();
   }
 
   @Query(() => Doggo, { nullable: true })
@@ -43,9 +62,12 @@ export class DoggoResolver {
     @Arg("options") options: DoggoInput,
     @Ctx() { req }: MyContext
   ): Promise<Doggo> {
+    console.log("into", req);
     if (!req.session.userId) {
       throw new Error("Not Authenticated");
     }
+    console.log(req.session);
+
     return Doggo.create({ ...options, ownerId: req.session.userId }).save();
   }
 

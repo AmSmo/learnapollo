@@ -1,4 +1,3 @@
-import { type } from "os";
 import { Field, Int, ObjectType } from "type-graphql";
 import {
   PrimaryGeneratedColumn,
@@ -44,5 +43,8 @@ export class Doggo extends BaseEntity {
 
   @Field()
   @Column({ type: "int", default: 0 })
-  treats!: number;
+  treats: number;
+
+  @Field()
+  textSnippet: string;
 }

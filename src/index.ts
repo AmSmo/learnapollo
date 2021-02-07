@@ -14,7 +14,7 @@ import cors from "cors";
 import { createConnection } from "typeorm";
 import { Doggo } from "./entities/Doggo";
 import { User } from "./entities/User";
-
+import path from "path";
 const main = async () => {
   const conn = await createConnection({
     type: "postgres",
@@ -23,9 +23,10 @@ const main = async () => {
     password: "",
     logging: true,
     synchronize: true,
+    migrations: [path.join(__dirname, "./migrations/*")],
     entities: [Doggo, User],
   });
-
+  conn.runMigrations();
   const RedisStore = connectRedis(session);
   const redis = new Redis();
 
