@@ -10,37 +10,59 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Doggo = void 0;
-const core_1 = require("@mikro-orm/core");
 const type_graphql_1 = require("type-graphql");
-let Doggo = class Doggo {
+const typeorm_1 = require("typeorm");
+const User_1 = require("./User");
+let Doggo = class Doggo extends typeorm_1.BaseEntity {
     constructor() {
-        this.createdAt = new Date();
-        this.updatedAt = new Date();
+        super(...arguments);
+        this.createdDate = new Date();
+        this.updatedDate = new Date();
     }
 };
 __decorate([
     type_graphql_1.Field(() => type_graphql_1.Int),
-    core_1.PrimaryKey(),
+    typeorm_1.PrimaryGeneratedColumn(),
     __metadata("design:type", Number)
 ], Doggo.prototype, "id", void 0);
 __decorate([
     type_graphql_1.Field(() => String),
-    core_1.Property({ type: "date" }),
+    typeorm_1.CreateDateColumn(),
     __metadata("design:type", Object)
-], Doggo.prototype, "createdAt", void 0);
+], Doggo.prototype, "createdDate", void 0);
 __decorate([
     type_graphql_1.Field(() => String),
-    core_1.Property({ type: "date", onUpdate: () => new Date() }),
+    typeorm_1.UpdateDateColumn(),
     __metadata("design:type", Object)
-], Doggo.prototype, "updatedAt", void 0);
+], Doggo.prototype, "updatedDate", void 0);
 __decorate([
     type_graphql_1.Field(() => String),
-    core_1.Property(),
+    typeorm_1.Column(),
     __metadata("design:type", String)
 ], Doggo.prototype, "name", void 0);
+__decorate([
+    type_graphql_1.Field(() => type_graphql_1.Int),
+    typeorm_1.Column(),
+    __metadata("design:type", Number)
+], Doggo.prototype, "ownerId", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    typeorm_1.ManyToOne(() => User_1.User, (user) => user.doggos),
+    __metadata("design:type", User_1.User)
+], Doggo.prototype, "owner", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    typeorm_1.Column({ nullable: true }),
+    __metadata("design:type", String)
+], Doggo.prototype, "story", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    typeorm_1.Column({ type: "int", default: 0 }),
+    __metadata("design:type", Number)
+], Doggo.prototype, "treats", void 0);
 Doggo = __decorate([
     type_graphql_1.ObjectType(),
-    core_1.Entity()
+    typeorm_1.Entity()
 ], Doggo);
 exports.Doggo = Doggo;
 //# sourceMappingURL=Doggo.js.map

@@ -24,36 +24,58 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DoggoResolver = void 0;
 const Doggo_1 = require("../entities/Doggo");
 const type_graphql_1 = require("type-graphql");
+const isAuth_1 = require("../middleware/isAuth");
+let DoggoInput = class DoggoInput {
+};
+__decorate([
+    type_graphql_1.Field(),
+    __metadata("design:type", String)
+], DoggoInput.prototype, "name", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    __metadata("design:type", String)
+], DoggoInput.prototype, "story", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    __metadata("design:type", Number)
+], DoggoInput.prototype, "ownerId", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    __metadata("design:type", Number)
+], DoggoInput.prototype, "treats", void 0);
+DoggoInput = __decorate([
+    type_graphql_1.InputType()
+], DoggoInput);
 let DoggoResolver = class DoggoResolver {
-    dogs({ em }) {
-        return em.find(Doggo_1.Doggo, {});
+    dogs() {
+        return Doggo_1.Doggo.find();
     }
-    dog(id, { em }) {
-        return em.findOne(Doggo_1.Doggo, { id });
+    dog(id) {
+        return Doggo_1.Doggo.findOne(id);
     }
-    createDog(name, { em }) {
+    createDog(options, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
-            const dog = em.create(Doggo_1.Doggo, { name });
-            yield em.persistAndFlush(dog);
-            return dog;
+            if (!req.session.userId) {
+                throw new Error("Not Authenticated");
+            }
+            return Doggo_1.Doggo.create(Object.assign(Object.assign({}, options), { ownerId: req.session.userId })).save();
         });
     }
-    updateDog(id, name, { em }) {
+    updateDog(id, name) {
         return __awaiter(this, void 0, void 0, function* () {
-            let dog = yield em.findOne(Doggo_1.Doggo, { id });
+            let dog = yield Doggo_1.Doggo.findOne(id);
             if (dog) {
                 dog.name = name;
-                yield em.persistAndFlush(dog);
-                return dog;
+                return dog.save();
             }
             else {
-                return null;
+                return undefined;
             }
         });
     }
-    deleteDog(id, { em }) {
+    deleteDog(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (em.nativeDelete(Doggo_1.Doggo, { id })) {
+            if (Doggo_1.Doggo.delete(id)) {
                 return true;
             }
             else {
@@ -64,42 +86,39 @@ let DoggoResolver = class DoggoResolver {
 };
 __decorate([
     type_graphql_1.Query(() => [Doggo_1.Doggo]),
-    __param(0, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], DoggoResolver.prototype, "dogs", null);
 __decorate([
     type_graphql_1.Query(() => Doggo_1.Doggo, { nullable: true }),
     __param(0, type_graphql_1.Arg("id", () => type_graphql_1.Int)),
-    __param(1, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], DoggoResolver.prototype, "dog", null);
 __decorate([
     type_graphql_1.Mutation(() => Doggo_1.Doggo, { nullable: true }),
-    __param(0, type_graphql_1.Arg("name", () => String)),
+    type_graphql_1.UseMiddleware(isAuth_1.isAuthenticated),
+    __param(0, type_graphql_1.Arg("options")),
     __param(1, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [DoggoInput, Object]),
     __metadata("design:returntype", Promise)
 ], DoggoResolver.prototype, "createDog", null);
 __decorate([
     type_graphql_1.Mutation(() => Doggo_1.Doggo, { nullable: true }),
     __param(0, type_graphql_1.Arg("id", () => type_graphql_1.Int)),
     __param(1, type_graphql_1.Arg("name", () => String)),
-    __param(2, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, String, Object]),
+    __metadata("design:paramtypes", [Number, String]),
     __metadata("design:returntype", Promise)
 ], DoggoResolver.prototype, "updateDog", null);
 __decorate([
     type_graphql_1.Mutation(() => Boolean, { nullable: true }),
     __param(0, type_graphql_1.Arg("id", () => type_graphql_1.Int)),
-    __param(1, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], DoggoResolver.prototype, "deleteDog", null);
 DoggoResolver = __decorate([

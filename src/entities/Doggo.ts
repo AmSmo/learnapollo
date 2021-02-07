@@ -1,23 +1,48 @@
-import { Entity, PrimaryKey, Property } from "@mikro-orm/core"
+import { type } from "os";
 import { Field, Int, ObjectType } from "type-graphql";
+import {
+  PrimaryGeneratedColumn,
+  Entity,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  BaseEntity,
+  ManyToOne,
+} from "typeorm";
+import { User } from "./User";
 
 @ObjectType()
 @Entity()
-export class Doggo {
-
-  @Field(()=> Int)
-  @PrimaryKey()
+export class Doggo extends BaseEntity {
+  @Field(() => Int)
+  @PrimaryGeneratedColumn()
   id!: number;
 
   @Field(() => String)
-  @Property({type: "date"})
-  createdAt = new Date();
+  @CreateDateColumn()
+  createdDate = new Date();
 
   @Field(() => String)
-  @Property({ type: "date", onUpdate: () => new Date() })
-  updatedAt = new Date();
+  @UpdateDateColumn()
+  updatedDate = new Date();
 
-  @Field(()=> String)
-  @Property()
+  @Field(() => String)
+  @Column()
   name!: string;
+
+  @Field(() => Int)
+  @Column()
+  ownerId: number;
+
+  @Field()
+  @ManyToOne(() => User, (user) => user.doggos)
+  owner: User;
+
+  @Field()
+  @Column({ nullable: true })
+  story: string;
+
+  @Field()
+  @Column({ type: "int", default: 0 })
+  treats!: number;
 }

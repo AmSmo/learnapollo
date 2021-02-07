@@ -1,7 +1,5 @@
-import { MikroORM } from "@mikro-orm/core";
 import { COOKIE_NAME, __prod__ } from "./constants";
 import "reflect-metadata";
-import microConfig from "./mikro-orm.config";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
@@ -13,12 +11,23 @@ import connectRedis from "connect-redis";
 import { secretInfo } from "./config/keys";
 import { MyContext } from "./types";
 import cors from "cors";
+import { createConnection } from "typeorm";
+import { Doggo } from "./entities/Doggo";
+import { User } from "./entities/User";
 
 const main = async () => {
+  const conn = await createConnection({
+    type: "postgres",
+    database: "doggo2",
+    username: "",
+    password: "",
+    logging: true,
+    synchronize: true,
+    entities: [Doggo, User],
+  });
+
   const RedisStore = connectRedis(session);
   const redis = new Redis();
-  const orm = await MikroORM.init(microConfig);
-  await orm.getMigrator().up();
 
   const app = express();
   app.use(
@@ -51,7 +60,7 @@ const main = async () => {
       resolvers: [DoggoResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }): MyContext => ({ em: orm.em, req, res, redis }),
+    context: ({ req, res }): MyContext => ({ req, res, redis }),
   });
 
   apolloServer.applyMiddleware({

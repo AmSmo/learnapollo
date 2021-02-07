@@ -60,23 +60,20 @@ UserResponse = __decorate([
     type_graphql_1.ObjectType()
 ], UserResponse);
 let UserResolver = class UserResolver {
-    users({ em }) {
-        return em.find(User_1.User, {});
+    users() {
+        return User_1.User.find({});
     }
-    me({ req, em }) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!req.session.userId) {
-                return null;
-            }
-            else {
-                const user = yield em.findOne(User_1.User, { id: req.session.userId });
-                return user;
-            }
-        });
+    me({ req }) {
+        if (!req.session.userId) {
+            return undefined;
+        }
+        else {
+            return User_1.User.findOne(req.session.userId);
+        }
     }
-    forgotPassword(email, { em, redis }) {
+    forgotPassword(email, { redis }) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield em.findOne(User_1.User, { email });
+            const user = yield User_1.User.findOne({ where: { email } });
             if (!user) {
                 return false;
             }
@@ -88,7 +85,7 @@ let UserResolver = class UserResolver {
             return true;
         });
     }
-    changePassword(token, newPassword, { em, redis, req }) {
+    changePassword(token, newPassword, { redis, req }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (newPassword.length <= 2) {
                 return {
@@ -112,7 +109,7 @@ let UserResolver = class UserResolver {
                     ],
                 };
             }
-            const user = yield em.findOne(User_1.User, { id: parseInt(userId) });
+            const user = yield User_1.User.findOne({ id: parseInt(userId) });
             if (!user) {
                 return {
                     errors: [
@@ -124,29 +121,28 @@ let UserResolver = class UserResolver {
                 };
             }
             user.password = yield argon2_1.default.hash(newPassword);
-            yield em.persistAndFlush(user);
+            yield user.save();
             yield redis.del(key);
             req.session.userId = user.id;
             return { user };
         });
     }
-    register(options, { em, req }) {
+    register(options, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             const errors = validateRegister_1.validateRegister(options);
             if (errors) {
                 return { errors };
             }
             const hashedPassword = yield argon2_1.default.hash(options.password);
-            const user = em.create(User_1.User, {
+            let user = User_1.User.create({
                 username: options.username,
                 password: hashedPassword,
                 email: options.email,
             });
             try {
-                yield em.persistAndFlush(user);
+                yield user.save();
             }
             catch (err) {
-                console.log(err);
                 if (err.code == "23505" || err.detail.includes("already exists")) {
                     return {
                         errors: [{ field: "username", message: "already in use" }],
@@ -158,13 +154,14 @@ let UserResolver = class UserResolver {
                     };
                 }
             }
+            console.log("created", user);
             req.session.userId = user.id;
             return { user };
         });
     }
-    login(options, { em, req }) {
+    login(options, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield em.findOne(User_1.User, { username: options.username });
+            const user = yield User_1.User.findOne({ where: { username: options.username } });
             if (!user) {
                 return {
                     errors: [
@@ -203,9 +200,8 @@ let UserResolver = class UserResolver {
 };
 __decorate([
     type_graphql_1.Query(() => [User_1.User]),
-    __param(0, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "users", null);
 __decorate([
@@ -213,7 +209,7 @@ __decorate([
     __param(0, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", Object)
 ], UserResolver.prototype, "me", null);
 __decorate([
     type_graphql_1.Mutation(() => Boolean),

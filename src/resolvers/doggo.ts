@@ -1,53 +1,71 @@
 import { Doggo } from "../entities/Doggo";
+import {
+  Resolver,
+  Query,
+  Int,
+  Arg,
+  Mutation,
+  InputType,
+  Field,
+  Ctx,
+  UseMiddleware,
+} from "type-graphql";
 import { MyContext } from "../types";
-import { Resolver, Query, Ctx, Int, Arg, Mutation } from "type-graphql";
+import { isAuthenticated } from "../middleware/isAuth";
+
+@InputType()
+class DoggoInput {
+  @Field()
+  name: string;
+  @Field()
+  story: string;
+  @Field()
+  ownerId: number;
+  @Field()
+  treats: number;
+}
 
 @Resolver()
 export class DoggoResolver {
   @Query(() => [Doggo])
-  dogs(@Ctx() { em }: MyContext): Promise<Doggo[]> {
-    return em.find(Doggo, {});
+  dogs(): Promise<Doggo[]> {
+    return Doggo.find();
   }
 
   @Query(() => Doggo, { nullable: true })
-  dog(
-    @Arg("id", () => Int) id: number,
-    @Ctx() { em }: MyContext
-  ): Promise<Doggo | null> {
-    return em.findOne(Doggo, { id });
+  dog(@Arg("id", () => Int) id: number): Promise<Doggo | undefined> {
+    return Doggo.findOne(id);
   }
 
   @Mutation(() => Doggo, { nullable: true })
+  @UseMiddleware(isAuthenticated)
   async createDog(
-    @Arg("name", () => String) name: string,
-    @Ctx() { em }: MyContext
+    @Arg("options") options: DoggoInput,
+    @Ctx() { req }: MyContext
   ): Promise<Doggo> {
-    const dog = em.create(Doggo, { name });
-    await em.persistAndFlush(dog);
-    return dog;
+    if (!req.session.userId) {
+      throw new Error("Not Authenticated");
+    }
+    return Doggo.create({ ...options, ownerId: req.session.userId }).save();
   }
+
   @Mutation(() => Doggo, { nullable: true })
   async updateDog(
     @Arg("id", () => Int) id: number,
-    @Arg("name", () => String) name: string,
-    @Ctx() { em }: MyContext
-  ): Promise<Doggo | null> {
-    let dog = await em.findOne(Doggo, { id });
+    @Arg("name", () => String) name: string
+  ): Promise<Doggo | undefined> {
+    let dog = await Doggo.findOne(id);
     if (dog) {
       dog.name = name;
-      await em.persistAndFlush(dog);
-      return dog;
+      return dog.save();
     } else {
-      return null;
+      return undefined;
     }
   }
 
   @Mutation(() => Boolean, { nullable: true })
-  async deleteDog(
-    @Arg("id", () => Int) id: number,
-    @Ctx() { em }: MyContext
-  ): Promise<boolean> {
-    if (em.nativeDelete(Doggo, { id })) {
+  async deleteDog(@Arg("id", () => Int) id: number): Promise<boolean> {
+    if (Doggo.delete(id)) {
       return true;
     } else {
       return false;
