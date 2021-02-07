@@ -55,23 +55,65 @@ export class UserResolver {
   async forgotPassword(
     @Arg("email") email: string,
     @Ctx() { em, redis }: MyContext
-  ) {
+  ): Promise<boolean> {
     const user = await em.findOne(User, { email });
     if (!user) {
       return false;
     }
 
     const token = v4();
-
-    await redis.set(
-      FORGET_PASSWORD_PREFIX + token,
-      user.id,
-      "ex",
-      1000 * 60 * 60 * 24 * 3
-    );
+    const key = FORGET_PASSWORD_PREFIX + token;
+    await redis.set(key, user.id, "ex", 1000 * 60 * 60 * 24 * 3);
     let text = `<a href="http://localhost:3000/change-password/${token}">Change Password</a>`;
     await sendEmail(email, text, "New Password");
     return true;
+  }
+
+  @Mutation(() => UserResponse)
+  async changePassword(
+    @Arg("token") token: string,
+    @Arg("newPassword") newPassword: string,
+    @Ctx() { em, redis, req }: MyContext
+  ): Promise<UserResponse> {
+    if (newPassword.length <= 2) {
+      return {
+        errors: [
+          {
+            field: "newPassword",
+            message: "Password Length must be greater than 2",
+          },
+        ],
+      };
+    }
+    const key = FORGET_PASSWORD_PREFIX + token;
+    const userId = await redis.get(key);
+    if (!userId) {
+      return {
+        errors: [
+          {
+            field: "token",
+            message: "Token is invalid",
+          },
+        ],
+      };
+    }
+    const user = await em.findOne(User, { id: parseInt(userId) });
+    if (!user) {
+      return {
+        errors: [
+          {
+            field: "token",
+            message: "User no longer exists",
+          },
+        ],
+      };
+    }
+    user.password = await argon2.hash(newPassword);
+    await em.persistAndFlush(user);
+
+    await redis.del(key);
+    req.session.userId = user.id;
+    return { user };
   }
 
   @Mutation(() => UserResponse)

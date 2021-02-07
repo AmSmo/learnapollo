@@ -14,3 +14,12 @@ export class SignUpInput extends UsernamePasswordInput {
   @Field()
   email: string;
 }
+
+@InputType()
+export class ForgotPasswordInput {
+  @Field()
+  token: string;
+
+  @Field()
+  newPassword: string;
+}
