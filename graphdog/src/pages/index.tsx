@@ -14,9 +14,10 @@ const Index = () => {
   const [{ data, fetching }] = useDoggosQuery({
     variables,
   });
+
   return (
     <div>
-      <NavBar />
+      <NavBar pageProps />
       <NextLink href="/adopt-dog">
         <Link ml="auto">Adopt a Dog</Link>
       </NextLink>
@@ -24,7 +25,7 @@ const Index = () => {
       <Wrapper variant="regular">
         <Stack spacing={8}>
           {data ? (
-            data.dogs.map((dog) => (
+            data.doggos.doggos.map((dog) => (
               <Box key={dog.id} p={5} shadow="md" borderWidth="1px">
                 <Heading fontSize="xl">{dog.name}</Heading>
                 <Text mt={4}>{dog.textSnippet}</Text>
@@ -34,13 +35,15 @@ const Index = () => {
             <div>Loading..</div>
           )}
 
-          {data ? (
+          {data && data.doggos.hasMore ? (
             <Button
               isLoading={fetching}
               onClick={() =>
                 setVariables({
-                  limit: 10,
-                  cursor: data.dogs[data.dogs.length - 1].createdDate,
+                  limit: variables.limit,
+                  cursor:
+                    data.doggos.doggos[data.doggos.doggos.length - 1]
+                      .createdDate,
                 })
               }
             >

@@ -7,7 +7,7 @@ import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 interface NavBarProps {}
 
-const NavBar: React.FC<NavBarProps> = (props) => {
+const NavBar: React.FC<NavBarProps> = () => {
   const [{ data, fetching }] = useMeQuery({
     pause: isServer(),
   });

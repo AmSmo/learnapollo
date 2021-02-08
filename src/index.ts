@@ -26,6 +26,7 @@ const main = async () => {
     migrations: [path.join(__dirname, "./migrations/*")],
     entities: [Doggo, User],
   });
+
   conn.runMigrations();
   const RedisStore = connectRedis(session);
   const redis = new Redis();

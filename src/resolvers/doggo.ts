@@ -11,10 +11,12 @@ import {
   UseMiddleware,
   FieldResolver,
   Root,
+  ObjectType,
 } from "type-graphql";
 import { MyContext } from "../types";
 import { isAuthenticated } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
+import { Morsel } from "../entities/Morsel";
 
 @InputType()
 class DoggoInput {
@@ -24,6 +26,15 @@ class DoggoInput {
   story?: string;
 }
 
+@ObjectType()
+class PaginatedDoggos {
+  @Field(() => [Doggo])
+  doggos: Doggo[];
+
+  @Field()
+  hasMore: boolean;
+}
+
 @Resolver(Doggo)
 export class DoggoResolver {
   @FieldResolver(() => String)
@@ -31,24 +42,43 @@ export class DoggoResolver {
     return root.story.slice(0, 50) + "...";
   }
 
-  @Query(() => [Doggo])
-  dogs(
+  @Query(() => PaginatedDoggos)
+  async doggos(
     @Arg("limit", () => Int) limit: number,
     @Arg("cursor", () => String, { nullable: true }) cursor: string | null
-  ): Promise<Doggo[]> {
+  ): Promise<PaginatedDoggos> {
     const realLimit = Math.min(50, limit);
-    const qb = getConnection()
-      .getRepository(Doggo)
-      .createQueryBuilder("d")
-      .orderBy('"createdDate"', "DESC")
-      .take(realLimit);
+    const realLimitPlusOne = realLimit + 1;
 
+    const replacements: any[] = [realLimitPlusOne];
     if (cursor) {
-      qb.where('"createdDate" < :cursor', {
-        cursor: new Date(parseInt(cursor)),
-      });
+      replacements.push(new Date(parseInt(cursor)));
     }
-    return qb.getMany();
+
+    const doggoList = await getConnection().query(
+      `
+      SELECT d.*, 
+      json_build_object(
+        'id', u.id,
+        'username', u.username,
+        'createdDate', u."createdDate",
+        'updatedDate', u."updatedDate",
+        'email', u.email  
+      ) as owner
+      FROM doggo as d
+      INNER JOIN public.user as u
+      ON d."ownerId" = u.id
+      ${cursor ? `WHERE d."createdDate" < $2` : ""}
+      ORDER BY d."createdDate" DESC
+      limit $1
+    `,
+      replacements
+    );
+
+    return {
+      doggos: doggoList.slice(0, realLimit),
+      hasMore: doggoList.length === realLimitPlusOne,
+    };
   }
 
   @Query(() => Doggo, { nullable: true })
@@ -62,11 +92,9 @@ export class DoggoResolver {
     @Arg("options") options: DoggoInput,
     @Ctx() { req }: MyContext
   ): Promise<Doggo> {
-    console.log("into", req);
     if (!req.session.userId) {
       throw new Error("Not Authenticated");
     }
-    console.log(req.session);
 
     return Doggo.create({ ...options, ownerId: req.session.userId }).save();
   }
@@ -83,6 +111,25 @@ export class DoggoResolver {
     } else {
       return undefined;
     }
+  }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuthenticated)
+  async feed(
+    @Arg("doggoId", () => Int) doggoId: number,
+    @Arg("value", () => Int) value: number,
+    @Ctx() { req }: MyContext
+  ) {
+    const isTreat = value !== -1;
+
+    const { userId } = req.session;
+    await Morsel.insert({
+      userId,
+      doggoId,
+      value: isTreat ? 1 : -1,
+    });
+
+    return true;
   }
 
   @Mutation(() => Boolean, { nullable: true })

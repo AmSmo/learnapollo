@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Doggo = void 0;
 const type_graphql_1 = require("type-graphql");
 const typeorm_1 = require("typeorm");
+const Morsel_1 = require("./Morsel");
 const User_1 = require("./User");
 let Doggo = class Doggo extends typeorm_1.BaseEntity {
     constructor() {
@@ -60,6 +61,10 @@ __decorate([
     typeorm_1.Column({ type: "int", default: 0 }),
     __metadata("design:type", Number)
 ], Doggo.prototype, "treats", void 0);
+__decorate([
+    typeorm_1.OneToMany(() => Morsel_1.Morsel, (morsel) => morsel.doggo, { nullable: true }),
+    __metadata("design:type", Number)
+], Doggo.prototype, "morsels", void 0);
 __decorate([
     type_graphql_1.Field(),
     __metadata("design:type", String)

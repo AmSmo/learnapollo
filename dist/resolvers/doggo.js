@@ -26,6 +26,7 @@ const Doggo_1 = require("../entities/Doggo");
 const type_graphql_1 = require("type-graphql");
 const isAuth_1 = require("../middleware/isAuth");
 const typeorm_1 = require("typeorm");
+const Morsel_1 = require("../entities/Morsel");
 let DoggoInput = class DoggoInput {
 };
 __decorate([
@@ -39,34 +40,65 @@ __decorate([
 DoggoInput = __decorate([
     type_graphql_1.InputType()
 ], DoggoInput);
+let PaginatedDoggos = class PaginatedDoggos {
+};
+__decorate([
+    type_graphql_1.Field(() => [Doggo_1.Doggo]),
+    __metadata("design:type", Array)
+], PaginatedDoggos.prototype, "doggos", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    __metadata("design:type", Boolean)
+], PaginatedDoggos.prototype, "hasMore", void 0);
+PaginatedDoggos = __decorate([
+    type_graphql_1.ObjectType()
+], PaginatedDoggos);
 let DoggoResolver = class DoggoResolver {
     textSnippet(root) {
         return root.story.slice(0, 50) + "...";
     }
-    dogs(limit, cursor) {
-        const realLimit = Math.min(50, limit);
-        const qb = typeorm_1.getConnection()
-            .getRepository(Doggo_1.Doggo)
-            .createQueryBuilder("d")
-            .orderBy('"createdDate"', "DESC")
-            .take(realLimit);
-        if (cursor) {
-            qb.where('"createdDate" < :cursor', {
-                cursor: new Date(parseInt(cursor)),
-            });
-        }
-        return qb.getMany();
+    doggos(limit, cursor) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const realLimit = Math.min(50, limit);
+            const realLimitPlusOne = realLimit + 1;
+            const replacements = [realLimitPlusOne];
+            if (cursor) {
+                replacements.push(new Date(parseInt(cursor)));
+            }
+
+            const doggoList = yield typeorm_1.getConnection().query(`
+      SELECT d.*, 
+      json_build_object(
+        'id', u.id,
+        'username', u.username,
+        'createdDate', u."createdDate",
+        'updatedDate', u."updatedDate",
+        'email', u.email  
+      ) as owner
+      FROM doggo as d
+      INNER JOIN public.user as u
+      ON d."ownerId" = u.id
+      ${cursor ? `WHERE d."createdDate" < $2` : ""}
+      ORDER BY d."createdDate" DESC
+      limit $1
+    `, replacements);
+
+            return {
+                doggos: doggoList.slice(0, realLimit),
+                hasMore: doggoList.length === realLimitPlusOne,
+            };
+        });
     }
     dog(id) {
         return Doggo_1.Doggo.findOne(id);
     }
     createDog(options, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("into", req);
+
             if (!req.session.userId) {
                 throw new Error("Not Authenticated");
             }
-            console.log(req.session);
+
             return Doggo_1.Doggo.create(Object.assign(Object.assign({}, options), { ownerId: req.session.userId })).save();
         });
     }
@@ -80,6 +112,18 @@ let DoggoResolver = class DoggoResolver {
             else {
                 return undefined;
             }
+        });
+    }
+    feed(doggoId, value, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const isTreat = value !== -1;
+            const { userId } = req.session;
+            yield Morsel_1.Morsel.insert({
+                userId,
+                doggoId,
+                value: isTreat ? 1 : -1,
+            });
+            return true;
         });
     }
     deleteDog(id) {
@@ -101,13 +145,13 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], DoggoResolver.prototype, "textSnippet", null);
 __decorate([
-    type_graphql_1.Query(() => [Doggo_1.Doggo]),
+    type_graphql_1.Query(() => PaginatedDoggos),
     __param(0, type_graphql_1.Arg("limit", () => type_graphql_1.Int)),
     __param(1, type_graphql_1.Arg("cursor", () => String, { nullable: true })),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
-], DoggoResolver.prototype, "dogs", null);
+], DoggoResolver.prototype, "doggos", null);
 __decorate([
     type_graphql_1.Query(() => Doggo_1.Doggo, { nullable: true }),
     __param(0, type_graphql_1.Arg("id", () => type_graphql_1.Int)),
@@ -132,6 +176,16 @@ __decorate([
     __metadata("design:paramtypes", [Number, String]),
     __metadata("design:returntype", Promise)
 ], DoggoResolver.prototype, "updateDog", null);
+__decorate([
+    type_graphql_1.Mutation(() => Boolean),
+    type_graphql_1.UseMiddleware(isAuth_1.isAuthenticated),
+    __param(0, type_graphql_1.Arg("doggoId", () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Arg("value", () => type_graphql_1.Int)),
+    __param(2, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, Object]),
+    __metadata("design:returntype", Promise)
+], DoggoResolver.prototype, "feed", null);
 __decorate([
     type_graphql_1.Mutation(() => Boolean, { nullable: true }),
     __param(0, type_graphql_1.Arg("id", () => type_graphql_1.Int)),

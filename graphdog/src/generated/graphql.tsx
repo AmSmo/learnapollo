@@ -16,14 +16,14 @@ export type Scalars = {
 
 export type Query = {
   __typename?: 'Query';
-  dogs: Array<Doggo>;
+  doggos: PaginatedDoggos;
   dog?: Maybe<Doggo>;
   users: Array<User>;
   me?: Maybe<User>;
 };
 
 
-export type QueryDogsArgs = {
+export type QueryDoggosArgs = {
   cursor?: Maybe<Scalars['String']>;
   limit: Scalars['Int'];
 };
@@ -31,6 +31,12 @@ export type QueryDogsArgs = {
 
 export type QueryDogArgs = {
   id: Scalars['Int'];
+};
+
+export type PaginatedDoggos = {
+  __typename?: 'PaginatedDoggos';
+  doggos: Array<Doggo>;
+  hasMore: Scalars['Boolean'];
 };
 
 export type Doggo = {
@@ -233,10 +239,14 @@ export type DoggosQueryVariables = Exact<{
 
 export type DoggosQuery = (
   { __typename?: 'Query' }
-  & { dogs: Array<(
-    { __typename?: 'Doggo' }
-    & Pick<Doggo, 'id' | 'name' | 'ownerId' | 'createdDate' | 'updatedDate' | 'textSnippet'>
-  )> }
+  & { doggos: (
+    { __typename?: 'PaginatedDoggos' }
+    & Pick<PaginatedDoggos, 'hasMore'>
+    & { doggos: Array<(
+      { __typename?: 'Doggo' }
+      & Pick<Doggo, 'id' | 'name' | 'ownerId' | 'createdDate' | 'updatedDate' | 'textSnippet'>
+    )> }
+  ) }
 );
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
@@ -343,13 +353,16 @@ export function useRegisterMutation() {
 };
 export const DoggosDocument = gql`
     query Doggos($limit: Int!, $cursor: String) {
-  dogs(cursor: $cursor, limit: $limit) {
-    id
-    name
-    ownerId
-    createdDate
-    updatedDate
-    textSnippet
+  doggos(cursor: $cursor, limit: $limit) {
+    hasMore
+    doggos {
+      id
+      name
+      ownerId
+      createdDate
+      updatedDate
+      textSnippet
+    }
   }
 }
     `;

@@ -13,6 +13,7 @@ exports.User = void 0;
 const typeorm_1 = require("typeorm");
 const type_graphql_1 = require("type-graphql");
 const Doggo_1 = require("./Doggo");
+const Morsel_1 = require("./Morsel");
 let User = class User extends typeorm_1.BaseEntity {
     constructor() {
         super(...arguments);
@@ -50,9 +51,14 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
 __decorate([
+    type_graphql_1.Field(() => [Doggo_1.Doggo]),
     typeorm_1.OneToMany(() => Doggo_1.Doggo, (doggo) => doggo.owner),
     __metadata("design:type", Array)
 ], User.prototype, "doggos", void 0);
+__decorate([
+    typeorm_1.OneToMany(() => Morsel_1.Morsel, (morsel) => morsel.user),
+    __metadata("design:type", Array)
+], User.prototype, "morsels", void 0);
 User = __decorate([
     type_graphql_1.ObjectType(),
     typeorm_1.Entity()

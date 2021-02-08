@@ -7,7 +7,9 @@ import {
   UpdateDateColumn,
   BaseEntity,
   ManyToOne,
+  OneToMany,
 } from "typeorm";
+import { Morsel } from "./Morsel";
 import { User } from "./User";
 
 @ObjectType()
@@ -44,6 +46,9 @@ export class Doggo extends BaseEntity {
   @Field()
   @Column({ type: "int", default: 0 })
   treats: number;
+
+  @OneToMany(() => Morsel, (morsel) => morsel.doggo, { nullable: true })
+  morsels: number;
 
   @Field()
   textSnippet: string;

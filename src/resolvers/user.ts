@@ -8,6 +8,8 @@ import {
   Mutation,
   Field,
   ObjectType,
+  FieldResolver,
+  Root,
 } from "type-graphql";
 import argon2 from "argon2";
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constants";
@@ -34,8 +36,16 @@ class UserResponse {
   user?: User;
 }
 
-@Resolver()
+@Resolver(User)
 export class UserResolver {
+  @FieldResolver(() => String)
+  email(@Root() user: User, @Ctx() { req }: MyContext) {
+    if (req.session.userId === user.id) {
+      return user.email;
+    }
+    return "";
+  }
+
   @Query(() => [User])
   users(): Promise<User[]> {
     return User.find({});
@@ -145,7 +155,7 @@ export class UserResolver {
         };
       }
     }
-    console.log("created", user);
+
     req.session.userId = user.id;
     return { user };
   }

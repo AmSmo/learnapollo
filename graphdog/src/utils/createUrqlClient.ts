@@ -1,5 +1,7 @@
-import { cacheExchange, FieldInfo } from "@urql/exchange-graphcache";
+import { cacheExchange, FieldInfo, Resolver } from "@urql/exchange-graphcache";
+
 import Router from "next/router";
+
 import {
   dedupExchange,
   Exchange,
@@ -12,17 +14,10 @@ import {
   LogoutMutation,
   MeDocument,
   MeQuery,
+  PaginatedDoggos,
   RegisterMutation,
 } from "../generated/graphql";
 import { betterUpdateQuery } from "./betterUpdate";
-import { Resolver, NullArray } from "../types";
-
-export type MergeMode = "before" | "after";
-
-export interface PaginationParams {
-  cursorArgument?: string;
-  mergeMode?: MergeMode;
-}
 
 export const cursorPagination = (): Resolver => {
   return (_parent, fieldArgs, cache, info) => {
@@ -37,15 +32,27 @@ export const cursorPagination = (): Resolver => {
       return undefined;
     }
     const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
-    const isItInTheCache = cache.resolveFieldByKey(entityKey, fieldKey);
-    info.partial = !!!isItInTheCache;
+    const isItInTheCache = cache.resolve(
+      cache.resolve(entityKey, fieldKey) as string,
+      "doggos"
+    );
+    info.partial = !isItInTheCache;
+    let hasMore = true;
     const results: string[] = [];
     fieldInfos.forEach((fi: FieldInfo) => {
-      const data = cache.resolve(entityKey, fi.fieldKey) as string[];
+      const key = cache.resolveFieldByKey(entityKey, fi.fieldKey) as string;
+      console.log(key, fi);
+
+      const data = cache.resolve(key, "doggos") as string[];
+      const _hasMore = cache.resolve(key, "hasMore");
+      if (!_hasMore) {
+        hasMore = _hasMore as boolean;
+      }
+
       results.push(...data);
     });
 
-    return results;
+    return { __typename: "PaginatedDoggos", doggos: results, hasMore };
   };
 };
 
@@ -70,7 +77,8 @@ export const createUrqlClient = (ssrExchange: any) => ({
   exchanges: [
     dedupExchange,
     cacheExchange({
-      resolvers: { Query: { posts: cursorPagination() } },
+      keys: { PaginatedDoggos: () => null },
+      resolvers: { Query: { doggos: cursorPagination() } },
       updates: {
         Mutation: {
           logout: (result, args, cache, info) => {

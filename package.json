@@ -10,7 +10,7 @@
     "server": "nodemon dist/index.js",
     "frontend": "yarn dev --prefix graphdog",
     "dev": "concurrently \"npm run server\" \"npm run frontend\"",
-    "create:migration": "mikro-orm migration:create"
+    "create:migration": "type-orm migration:create"
   },
   "author": "Rose Koron",
   "dependencies": {

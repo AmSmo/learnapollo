@@ -1,10 +1,13 @@
 query Doggos($limit: Int!, $cursor: String) {
-  dogs(cursor: $cursor, limit: $limit) {
-    id
-    name
-    ownerId
-    createdDate
-    updatedDate
-    textSnippet
+  doggos(cursor: $cursor, limit: $limit) {
+    hasMore
+    doggos {
+      id
+      name
+      ownerId
+      createdDate
+      updatedDate
+      textSnippet
+    }
   }
 }

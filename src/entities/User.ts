@@ -9,6 +9,7 @@ import {
 } from "typeorm";
 import { Field, Int, ObjectType } from "type-graphql";
 import { Doggo } from "./Doggo";
+import { Morsel } from "./Morsel";
 
 @ObjectType()
 @Entity()
@@ -36,6 +37,10 @@ export class User extends BaseEntity {
   @Column({ type: "text" })
   password!: string;
 
+  @Field(() => [Doggo])
   @OneToMany(() => Doggo, (doggo) => doggo.owner)
   doggos: Doggo[];
+
+  @OneToMany(() => Morsel, (morsel) => morsel.user)
+  morsels: Morsel[];
 }

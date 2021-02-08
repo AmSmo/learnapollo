@@ -9,7 +9,7 @@ interface LayOutProps {
 const LayOut: React.FC<LayOutProps> = ({ children, variant = "regular" }) => {
   return (
     <>
-      <NavBar />
+      <NavBar pageProps />
       <Box
         mt={8}
         mx="auto"
