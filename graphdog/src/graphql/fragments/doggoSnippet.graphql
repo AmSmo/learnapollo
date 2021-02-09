@@ -1,0 +1,14 @@
+fragment DoggoSnippet on Doggo {
+  id
+  name
+  ownerId
+  createdDate
+  updatedDate
+  textSnippet
+  treats
+  story
+  owner {
+    id
+    username
+  }
+}

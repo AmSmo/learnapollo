@@ -16,7 +16,7 @@ import {
 import { MyContext } from "../types";
 import { isAuthenticated } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
-import { Morsel } from "../entities/Morsel";
+// import { Morsel } from "../entities/Morsel";
 
 @InputType()
 class DoggoInput {

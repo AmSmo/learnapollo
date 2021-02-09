@@ -151,6 +151,15 @@ export type BaseUserInfoFragment = (
   & Pick<User, 'id' | 'username' | 'email'>
 );
 
+export type DoggoSnippetFragment = (
+  { __typename?: 'Doggo' }
+  & Pick<Doggo, 'id' | 'name' | 'ownerId' | 'createdDate' | 'updatedDate' | 'textSnippet' | 'treats' | 'story'>
+  & { owner: (
+    { __typename?: 'User' }
+    & Pick<User, 'id' | 'username'>
+  ) }
+);
+
 export type RegularErrorFragment = (
   { __typename?: 'FieldError' }
   & Pick<FieldError, 'field' | 'message'>
@@ -192,6 +201,17 @@ export type CreateDogMutation = (
     { __typename?: 'Doggo' }
     & Pick<Doggo, 'id' | 'name' | 'story' | 'ownerId' | 'createdDate' | 'updatedDate'>
   )> }
+);
+
+export type FeedMutationVariables = Exact<{
+  value: Scalars['Int'];
+  doggoId: Scalars['Int'];
+}>;
+
+
+export type FeedMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'feed'>
 );
 
 export type ForgotPasswordMutationVariables = Exact<{
@@ -252,11 +272,7 @@ export type DoggosQuery = (
     & Pick<PaginatedDoggos, 'hasMore'>
     & { doggos: Array<(
       { __typename?: 'Doggo' }
-      & Pick<Doggo, 'id' | 'name' | 'ownerId' | 'createdDate' | 'updatedDate' | 'textSnippet'>
-      & { owner: (
-        { __typename?: 'User' }
-        & Pick<User, 'id' | 'username'>
-      ) }
+      & DoggoSnippetFragment
     )> }
   ) }
 );
@@ -272,6 +288,22 @@ export type MeQuery = (
   )> }
 );
 
+export const DoggoSnippetFragmentDoc = gql`
+    fragment DoggoSnippet on Doggo {
+  id
+  name
+  ownerId
+  createdDate
+  updatedDate
+  textSnippet
+  treats
+  story
+  owner {
+    id
+    username
+  }
+}
+    `;
 export const RegularErrorFragmentDoc = gql`
     fragment RegularError on FieldError {
   field
@@ -323,6 +355,15 @@ export const CreateDogDocument = gql`
 export function useCreateDogMutation() {
   return Urql.useMutation<CreateDogMutation, CreateDogMutationVariables>(CreateDogDocument);
 };
+export const FeedDocument = gql`
+    mutation Feed($value: Int!, $doggoId: Int!) {
+  feed(value: $value, doggoId: $doggoId)
+}
+    `;
+
+export function useFeedMutation() {
+  return Urql.useMutation<FeedMutation, FeedMutationVariables>(FeedDocument);
+};
 export const ForgotPasswordDocument = gql`
     mutation ForgotPassword($email: String!) {
   forgotPassword(email: $email)
@@ -368,20 +409,11 @@ export const DoggosDocument = gql`
   doggos(cursor: $cursor, limit: $limit) {
     hasMore
     doggos {
-      id
-      name
-      ownerId
-      createdDate
-      updatedDate
-      textSnippet
-      owner {
-        id
-        username
-      }
+      ...DoggoSnippet
     }
   }
 }
-    `;
+    ${DoggoSnippetFragmentDoc}`;
 
 export function useDoggosQuery(options: Omit<Urql.UseQueryArgs<DoggosQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<DoggosQuery>({ query: DoggosDocument, ...options });

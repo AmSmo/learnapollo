@@ -41,7 +41,6 @@ export const cursorPagination = (): Resolver => {
     const results: string[] = [];
     fieldInfos.forEach((fi: FieldInfo) => {
       const key = cache.resolveFieldByKey(entityKey, fi.fieldKey) as string;
-      console.log(key, fi);
 
       const data = cache.resolve(key, "doggos") as string[];
       const _hasMore = cache.resolve(key, "hasMore");
@@ -81,6 +80,18 @@ export const createUrqlClient = (ssrExchange: any) => ({
       resolvers: { Query: { doggos: cursorPagination() } },
       updates: {
         Mutation: {
+          createDog: (result, args, cache, info) => {
+            const allFields = cache.inspectFields("Query");
+            const fieldInfos = allFields.filter(
+              (info) => info.fieldName == "doggos"
+            );
+            fieldInfos.forEach((fi) => {
+              cache.invalidate("Query", "posts", fi.arguments || {});
+            });
+            cache.invalidate("Query", "doggos", {
+              limit: 10,
+            });
+          },
           logout: (result, args, cache, info) => {
             betterUpdateQuery<LogoutMutation, MeQuery>(
               cache,

@@ -1,0 +1,3 @@
+mutation Feed($value: Int!, $doggoId: Int!) {
+  feed(value: $value, doggoId: $doggoId)
+}
