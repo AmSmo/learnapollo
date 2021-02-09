@@ -50,6 +50,9 @@ export class Doggo extends BaseEntity {
   @OneToMany(() => Morsel, (morsel) => morsel.doggo, { nullable: true })
   morsels: number;
 
+  @Field({ nullable: true })
+  treatStatus: number;
+
   @Field()
   textSnippet: string;
 }

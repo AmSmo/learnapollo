@@ -66,6 +66,10 @@ __decorate([
     __metadata("design:type", Number)
 ], Doggo.prototype, "morsels", void 0);
 __decorate([
+    type_graphql_1.Field({ nullable: true }),
+    __metadata("design:type", Number)
+], Doggo.prototype, "treatStatus", void 0);
+__decorate([
     type_graphql_1.Field(),
     __metadata("design:type", String)
 ], Doggo.prototype, "textSnippet", void 0);

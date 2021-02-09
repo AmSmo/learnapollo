@@ -16,17 +16,20 @@ const Treats: React.FC<TreatProps> = ({ dog }) => {
   const [loadingState, setLoadingState] = useState<
     "up-loading" | "down-loading" | "not-loading"
   >("not-loading");
-  const [{ fetching, operation }, feed] = useFeedMutation();
+  const [, feed] = useFeedMutation();
   if (data?.me) {
     return (
       <Text ml="auto">
         <IconButton
-          colorScheme="teal"
           aria-label="Give Treat"
-          size="xs"
+          size="md"
           icon={<TriangleUpIcon />}
           mr={2}
+          bg={dog.treatStatus === 1 ? "green" : "lightgrey"}
           onClick={async () => {
+            if (dog.treatStatus === 1) {
+              return;
+            }
             setLoadingState("up-loading");
             await feed({ value: 1, doggoId: dog.id });
             setLoadingState("not-loading");
@@ -36,13 +39,16 @@ const Treats: React.FC<TreatProps> = ({ dog }) => {
         {dog.treats}
 
         <IconButton
-          colorScheme="teal"
           aria-label="Take away Treat"
-          size="xs"
+          size="md"
           icon={<TriangleDownIcon />}
+          bg={dog.treatStatus === -1 ? "red" : "lightgrey"}
           ml={2}
           isLoading={loadingState === "down-loading"}
           onClick={async () => {
+            if (dog.treatStatus === -1) {
+              return;
+            }
             setLoadingState("down-loading");
             await feed({ value: -1, doggoId: dog.id });
             setLoadingState("not-loading");

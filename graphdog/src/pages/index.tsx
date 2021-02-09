@@ -1,24 +1,20 @@
-import NavBar from "../components/NavBar";
-import { withUrqlClient } from "next-urql";
-import { createUrqlClient } from "../utils/createUrqlClient";
-import { Doggo, useDoggosQuery } from "../generated/graphql";
 import {
   Box,
   Button,
   Flex,
   Heading,
-  Icon,
-  IconButton,
   Link,
   Stack,
   Text,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
-import Wrapper from "../components/Wrapper";
+import { withUrqlClient } from "next-urql";
 import NextLink from "next/link";
-import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
-import Treat from "../components/Treat";
+import React, { useState } from "react";
+import NavBar from "../components/NavBar";
 import Treats from "../components/Treat";
+import Wrapper from "../components/Wrapper";
+import { useDoggosQuery } from "../generated/graphql";
+import { createUrqlClient } from "../utils/createUrqlClient";
 const Index = () => {
   const [variables, setVariables] = useState({
     limit: 10,
@@ -41,7 +37,11 @@ const Index = () => {
             data.doggos.doggos.map((dog) => (
               <Box key={dog.id} p={5} shadow="md" borderWidth="1px">
                 <Flex>
-                  <Heading fontSize="xl">{dog.name}</Heading>
+                  <NextLink href="/doggo/[id]" as={`/doggo/${dog.id}`}>
+                    <Link>
+                      <Heading fontSize="xl">{dog.name}</Heading>
+                    </Link>
+                  </NextLink>
                   <Treats dog={dog} />
                 </Flex>
                 <Text pl={7} fontSize="sm" mt={2}>

@@ -1,0 +1,17 @@
+query Doggo($id: Int!) {
+  dog(id: $id) {
+    id
+    name
+    ownerId
+    createdDate
+    updatedDate
+    textSnippet
+    treats
+    treatStatus
+    story
+    owner {
+      id
+      username
+    }
+  }
+}

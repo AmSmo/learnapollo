@@ -26,6 +26,7 @@ const Doggo_1 = require("../entities/Doggo");
 const type_graphql_1 = require("type-graphql");
 const isAuth_1 = require("../middleware/isAuth");
 const typeorm_1 = require("typeorm");
+const Morsel_1 = require("../entities/Morsel");
 let DoggoInput = class DoggoInput {
 };
 __decorate([
@@ -56,11 +57,11 @@ let DoggoResolver = class DoggoResolver {
     textSnippet(root) {
         return root.story.slice(0, 50) + "...";
     }
-    doggos(limit, cursor) {
+    doggos({ req }, limit, cursor) {
         return __awaiter(this, void 0, void 0, function* () {
             const realLimit = Math.min(50, limit);
             const realLimitPlusOne = realLimit + 1;
-            const replacements = [realLimitPlusOne];
+            const replacements = [realLimitPlusOne, req.session.userId || null];
             if (cursor) {
                 replacements.push(new Date(parseInt(cursor)));
             }
@@ -72,11 +73,14 @@ let DoggoResolver = class DoggoResolver {
         'createdDate', u."createdDate",
         'updatedDate', u."updatedDate",
         'email', u.email  
-      ) as owner
+      ) as owner,
+      ${req.session.userId
+                ? `(select value from morsel where "userId" = $2 AND "doggoId" = d.id) as "treatStatus"`
+                : `null as "treatStatus"`}
       FROM doggo as d
       INNER JOIN public.user as u
       ON d."ownerId" = u.id
-      ${cursor ? `WHERE d."createdDate" < $2` : ""}
+      ${cursor ? `WHERE d."createdDate" < $3` : ""}
       ORDER BY d."createdDate" DESC
       limit $1
     `, replacements);
@@ -87,7 +91,7 @@ let DoggoResolver = class DoggoResolver {
         });
     }
     dog(id) {
-        return Doggo_1.Doggo.findOne(id);
+        return Doggo_1.Doggo.findOne(id, { relations: ["owner"] });
     }
     createDog(options, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -114,7 +118,21 @@ let DoggoResolver = class DoggoResolver {
             const isTreat = value !== -1;
             const realValue = isTreat ? 1 : -1;
             const { userId } = req.session;
-            yield typeorm_1.getConnection().query(`
+            const alreadyFed = yield Morsel_1.Morsel.findOne({ where: { userId, doggoId } });
+            if (alreadyFed && alreadyFed.value !== realValue) {
+                alreadyFed.value = realValue;
+                yield alreadyFed.save();
+                typeorm_1.getConnection().query(`
+        UPDATE doggo
+      set treats = treats + ${2 * realValue}
+      where doggo.id = ${doggoId};
+`);
+            }
+            else if (alreadyFed) {
+                return true;
+            }
+            else {
+                yield typeorm_1.getConnection().query(`
       START TRANSACTION;
 
       INSERT INTO morsel ("userId", "doggoId", "value")
@@ -124,6 +142,7 @@ let DoggoResolver = class DoggoResolver {
       set treats = treats + ${realValue}
       where doggo.id = ${doggoId};
       COMMIT;`);
+            }
             return true;
         });
     }
@@ -147,10 +166,11 @@ __decorate([
 ], DoggoResolver.prototype, "textSnippet", null);
 __decorate([
     type_graphql_1.Query(() => PaginatedDoggos),
-    __param(0, type_graphql_1.Arg("limit", () => type_graphql_1.Int)),
-    __param(1, type_graphql_1.Arg("cursor", () => String, { nullable: true })),
+    __param(0, type_graphql_1.Ctx()),
+    __param(1, type_graphql_1.Arg("limit", () => type_graphql_1.Int)),
+    __param(2, type_graphql_1.Arg("cursor", () => String, { nullable: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:paramtypes", [Object, Number, Object]),
     __metadata("design:returntype", Promise)
 ], DoggoResolver.prototype, "doggos", null);
 __decorate([

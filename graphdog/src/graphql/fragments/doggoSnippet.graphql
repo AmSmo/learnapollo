@@ -6,6 +6,7 @@ fragment DoggoSnippet on Doggo {
   updatedDate
   textSnippet
   treats
+  treatStatus
   story
   owner {
     id

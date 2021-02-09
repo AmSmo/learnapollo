@@ -49,6 +49,7 @@ export type Doggo = {
   owner: User;
   story: Scalars['String'];
   treats: Scalars['Float'];
+  treatStatus?: Maybe<Scalars['Float']>;
   textSnippet: Scalars['String'];
 };
 
@@ -153,7 +154,7 @@ export type BaseUserInfoFragment = (
 
 export type DoggoSnippetFragment = (
   { __typename?: 'Doggo' }
-  & Pick<Doggo, 'id' | 'name' | 'ownerId' | 'createdDate' | 'updatedDate' | 'textSnippet' | 'treats' | 'story'>
+  & Pick<Doggo, 'id' | 'name' | 'ownerId' | 'createdDate' | 'updatedDate' | 'textSnippet' | 'treats' | 'treatStatus' | 'story'>
   & { owner: (
     { __typename?: 'User' }
     & Pick<User, 'id' | 'username'>
@@ -259,6 +260,23 @@ export type RegisterMutation = (
   ) }
 );
 
+export type DoggoQueryVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type DoggoQuery = (
+  { __typename?: 'Query' }
+  & { dog?: Maybe<(
+    { __typename?: 'Doggo' }
+    & Pick<Doggo, 'id' | 'name' | 'ownerId' | 'createdDate' | 'updatedDate' | 'textSnippet' | 'treats' | 'treatStatus' | 'story'>
+    & { owner: (
+      { __typename?: 'User' }
+      & Pick<User, 'id' | 'username'>
+    ) }
+  )> }
+);
+
 export type DoggosQueryVariables = Exact<{
   limit: Scalars['Int'];
   cursor?: Maybe<Scalars['String']>;
@@ -297,6 +315,7 @@ export const DoggoSnippetFragmentDoc = gql`
   updatedDate
   textSnippet
   treats
+  treatStatus
   story
   owner {
     id
@@ -403,6 +422,29 @@ export const RegisterDocument = gql`
 
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
+};
+export const DoggoDocument = gql`
+    query Doggo($id: Int!) {
+  dog(id: $id) {
+    id
+    name
+    ownerId
+    createdDate
+    updatedDate
+    textSnippet
+    treats
+    treatStatus
+    story
+    owner {
+      id
+      username
+    }
+  }
+}
+    `;
+
+export function useDoggoQuery(options: Omit<Urql.UseQueryArgs<DoggoQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<DoggoQuery>({ query: DoggoDocument, ...options });
 };
 export const DoggosDocument = gql`
     query Doggos($limit: Int!, $cursor: String) {
