@@ -18,10 +18,11 @@ export class Morsel extends BaseEntity {
   @PrimaryColumn()
   doggoId: number;
 
+  @Field(() => User)
   @ManyToOne(() => User, (user) => user.morsels)
-  @Column()
   user: User;
 
+  @Field(() => Doggo)
   @ManyToOne(() => Doggo, (doggo) => doggo.morsels)
   doggo: Doggo;
 }

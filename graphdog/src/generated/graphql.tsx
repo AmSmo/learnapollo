@@ -59,12 +59,14 @@ export type User = {
   updatedDate: Scalars['String'];
   username: Scalars['String'];
   email: Scalars['String'];
+  doggos: Array<Doggo>;
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
   createDog?: Maybe<Doggo>;
   updateDog?: Maybe<Doggo>;
+  feed: Scalars['Boolean'];
   deleteDog?: Maybe<Scalars['Boolean']>;
   forgotPassword: Scalars['Boolean'];
   changePassword: UserResponse;
@@ -82,6 +84,12 @@ export type MutationCreateDogArgs = {
 export type MutationUpdateDogArgs = {
   name: Scalars['String'];
   id: Scalars['Int'];
+};
+
+
+export type MutationFeedArgs = {
+  value: Scalars['Int'];
+  doggoId: Scalars['Int'];
 };
 
 
@@ -245,6 +253,10 @@ export type DoggosQuery = (
     & { doggos: Array<(
       { __typename?: 'Doggo' }
       & Pick<Doggo, 'id' | 'name' | 'ownerId' | 'createdDate' | 'updatedDate' | 'textSnippet'>
+      & { owner: (
+        { __typename?: 'User' }
+        & Pick<User, 'id' | 'username'>
+      ) }
     )> }
   ) }
 );
@@ -362,6 +374,10 @@ export const DoggosDocument = gql`
       createdDate
       updatedDate
       textSnippet
+      owner {
+        id
+        username
+      }
     }
   }
 }

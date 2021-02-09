@@ -32,11 +32,12 @@ __decorate([
     __metadata("design:type", Number)
 ], Morsel.prototype, "doggoId", void 0);
 __decorate([
+    type_graphql_1.Field(() => User_1.User),
     typeorm_1.ManyToOne(() => User_1.User, (user) => user.morsels),
-    typeorm_1.Column(),
     __metadata("design:type", User_1.User)
 ], Morsel.prototype, "user", void 0);
 __decorate([
+    type_graphql_1.Field(() => Doggo_1.Doggo),
     typeorm_1.ManyToOne(() => Doggo_1.Doggo, (doggo) => doggo.morsels),
     __metadata("design:type", Doggo_1.Doggo)
 ], Morsel.prototype, "doggo", void 0);

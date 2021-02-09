@@ -121,13 +121,25 @@ export class DoggoResolver {
     @Ctx() { req }: MyContext
   ) {
     const isTreat = value !== -1;
-
+    const realValue = isTreat ? 1 : -1;
     const { userId } = req.session;
-    await Morsel.insert({
-      userId,
-      doggoId,
-      value: isTreat ? 1 : -1,
-    });
+    // await Morsel.insert({
+    //   userId,
+    //   doggoId,
+    //   value: realValue,
+    // });
+    await getConnection().query(
+      `
+      START TRANSACTION;
+
+      INSERT INTO morsel ("userId", "doggoId", "value")
+      values ( ${userId} ,${doggoId} ,${realValue} );
+      
+      UPDATE doggo
+      set treats = treats + ${realValue}
+      where doggo.id = ${doggoId};
+      COMMIT;`
+    );
 
     return true;
   }

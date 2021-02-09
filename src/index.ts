@@ -15,6 +15,7 @@ import { createConnection } from "typeorm";
 import { Doggo } from "./entities/Doggo";
 import { User } from "./entities/User";
 import path from "path";
+import { Morsel } from "./entities/Morsel";
 const main = async () => {
   const conn = await createConnection({
     type: "postgres",
@@ -24,7 +25,7 @@ const main = async () => {
     logging: true,
     synchronize: true,
     migrations: [path.join(__dirname, "./migrations/*")],
-    entities: [Doggo, User],
+    entities: [Doggo, User, Morsel],
   });
 
   conn.runMigrations();

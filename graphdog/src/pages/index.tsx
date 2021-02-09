@@ -28,6 +28,9 @@ const Index = () => {
             data.doggos.doggos.map((dog) => (
               <Box key={dog.id} p={5} shadow="md" borderWidth="1px">
                 <Heading fontSize="xl">{dog.name}</Heading>
+                <Text pl={7} fontSize="sm" mt={2}>
+                  <strong>Lucky Dog Owner</strong>: {dog.owner.username}
+                </Text>
                 <Text mt={4}>{dog.textSnippet}</Text>
               </Box>
             ))

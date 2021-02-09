@@ -26,7 +26,6 @@ const Doggo_1 = require("../entities/Doggo");
 const type_graphql_1 = require("type-graphql");
 const isAuth_1 = require("../middleware/isAuth");
 const typeorm_1 = require("typeorm");
-const Morsel_1 = require("../entities/Morsel");
 let DoggoInput = class DoggoInput {
 };
 __decorate([
@@ -65,7 +64,6 @@ let DoggoResolver = class DoggoResolver {
             if (cursor) {
                 replacements.push(new Date(parseInt(cursor)));
             }
-
             const doggoList = yield typeorm_1.getConnection().query(`
       SELECT d.*, 
       json_build_object(
@@ -82,7 +80,6 @@ let DoggoResolver = class DoggoResolver {
       ORDER BY d."createdDate" DESC
       limit $1
     `, replacements);
-
             return {
                 doggos: doggoList.slice(0, realLimit),
                 hasMore: doggoList.length === realLimitPlusOne,
@@ -94,11 +91,9 @@ let DoggoResolver = class DoggoResolver {
     }
     createDog(options, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
-
             if (!req.session.userId) {
                 throw new Error("Not Authenticated");
             }
-
             return Doggo_1.Doggo.create(Object.assign(Object.assign({}, options), { ownerId: req.session.userId })).save();
         });
     }
@@ -117,12 +112,18 @@ let DoggoResolver = class DoggoResolver {
     feed(doggoId, value, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             const isTreat = value !== -1;
+            const realValue = isTreat ? 1 : -1;
             const { userId } = req.session;
-            yield Morsel_1.Morsel.insert({
-                userId,
-                doggoId,
-                value: isTreat ? 1 : -1,
-            });
+            yield typeorm_1.getConnection().query(`
+      START TRANSACTION;
+
+      INSERT INTO morsel ("userId", "doggoId", "value")
+      values ( ${userId} ,${doggoId} ,${realValue} );
+      
+      UPDATE doggo
+      set treats = treats + ${realValue}
+      where doggo.id = ${doggoId};
+      COMMIT;`);
             return true;
         });
     }
