@@ -94,4 +94,8 @@ const Index = () => {
   );
 };
 
-export default withUrqlClient(createUrqlClient, { ssr: true })(Index);
+export default Index;
+
+// URQL WAY BELOW
+
+// export default withUrqlClient(createUrqlClient, { ssr: true })(Index);
