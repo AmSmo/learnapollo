@@ -7,14 +7,20 @@ import {
   Stack,
   Text,
   IconButton,
+  Icon,
 } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import NextLink from "next/link";
 import React, { useState } from "react";
+import EditDeleteDoggoButtons from "../components/EditDeleteDoggoButtons";
 import NavBar from "../components/NavBar";
 import Treats from "../components/Treat";
 import Wrapper from "../components/Wrapper";
-import { useDeleteDogMutation, useDoggosQuery } from "../generated/graphql";
+import {
+  useDeleteDogMutation,
+  useDoggosQuery,
+  useMeQuery,
+} from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 const Index = () => {
   const [variables, setVariables] = useState({
@@ -24,6 +30,7 @@ const Index = () => {
   const [{ data, fetching }] = useDoggosQuery({
     variables,
   });
+  const [{ data: meData }] = useMeQuery();
   const [, deleteDog] = useDeleteDogMutation();
   return (
     <div>
@@ -52,19 +59,9 @@ const Index = () => {
                     </Box>
                     <Box width="20%" ml="auto" textAlign="right">
                       <Treats dog={dog} />
-                      <IconButton
-                        icon="delete"
-                        aria-label="Delete Dog"
-                        mt={10}
-                        mr={2}
-                        size="md"
-                        position="relative"
-                        ml="auto"
-                        onClick={() => {
-                          console.log("DSAA");
-                          deleteDog({ id: parseInt(dog.id) });
-                        }}
-                      />
+                      {meData?.me?.id === dog.ownerId ? (
+                        <EditDeleteDoggoButtons id={dog.id} />
+                      ) : null}
                     </Box>
                   </Flex>
                 </Box>

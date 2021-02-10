@@ -41,6 +41,6 @@ export class User extends BaseEntity {
   @OneToMany(() => Doggo, (doggo) => doggo.owner)
   doggos: Doggo[];
 
-  @OneToMany(() => Morsel, (morsel) => morsel.user)
+  @OneToMany(() => Morsel, (morsel) => morsel.user, { onDelete: "CASCADE" })
   morsels: Morsel[];
 }

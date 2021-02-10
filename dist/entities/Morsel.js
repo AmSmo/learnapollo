@@ -38,7 +38,7 @@ __decorate([
 ], Morsel.prototype, "user", void 0);
 __decorate([
     type_graphql_1.Field(() => Doggo_1.Doggo),
-    typeorm_1.ManyToOne(() => Doggo_1.Doggo, (doggo) => doggo.morsels),
+    typeorm_1.ManyToOne(() => Doggo_1.Doggo, (doggo) => doggo.morsels, { onDelete: "CASCADE" }),
     __metadata("design:type", Doggo_1.Doggo)
 ], Morsel.prototype, "doggo", void 0);
 Morsel = __decorate([

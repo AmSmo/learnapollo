@@ -83,6 +83,7 @@ export type MutationCreateDogArgs = {
 
 
 export type MutationUpdateDogArgs = {
+  story: Scalars['String'];
   name: Scalars['String'];
   id: Scalars['Int'];
 };
@@ -270,6 +271,21 @@ export type RegisterMutation = (
   ) }
 );
 
+export type UpdateDogMutationVariables = Exact<{
+  id: Scalars['Int'];
+  story: Scalars['String'];
+  name: Scalars['String'];
+}>;
+
+
+export type UpdateDogMutation = (
+  { __typename?: 'Mutation' }
+  & { updateDog?: Maybe<(
+    { __typename?: 'Doggo' }
+    & Pick<Doggo, 'id' | 'name' | 'story' | 'textSnippet'>
+  )> }
+);
+
 export type DoggoQueryVariables = Exact<{
   id: Scalars['Int'];
 }>;
@@ -441,6 +457,20 @@ export const RegisterDocument = gql`
 
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
+};
+export const UpdateDogDocument = gql`
+    mutation UpdateDog($id: Int!, $story: String!, $name: String!) {
+  updateDog(id: $id, story: $story, name: $name) {
+    id
+    name
+    story
+    textSnippet
+  }
+}
+    `;
+
+export function useUpdateDogMutation() {
+  return Urql.useMutation<UpdateDogMutation, UpdateDogMutationVariables>(UpdateDogDocument);
 };
 export const DoggoDocument = gql`
     query Doggo($id: Int!) {

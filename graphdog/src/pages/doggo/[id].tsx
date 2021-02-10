@@ -1,24 +1,17 @@
 import { Box, Heading } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
-import { useRouter } from "next/router";
 import React from "react";
+import EditDeleteDoggoButtons from "../../components/EditDeleteDoggoButtons";
 import LayOut from "../../components/LayOut";
-import { useDoggoQuery } from "../../generated/graphql";
-
+import { useMeQuery } from "../../generated/graphql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
+import { useGetDoggo } from "../../utils/getDoggo";
 
 interface DoggoProps {}
 
 export const DoggoInfo: React.FC<DoggoProps> = ({}) => {
-  const router = useRouter();
-  const id =
-    typeof router.query.id === "string" ? parseInt(router.query.id) : -1;
-  console.log(id);
-  const [{ data, fetching }] = useDoggoQuery({
-    pause: id === -1,
-    variables: { id },
-  });
-  console.log(data);
+  const [{ data: meData }] = useMeQuery();
+  const [{ data, fetching }] = useGetDoggo();
 
   if (!data?.dog) {
     return (
@@ -31,6 +24,10 @@ export const DoggoInfo: React.FC<DoggoProps> = ({}) => {
     <LayOut>
       <Heading>{data.dog.name}</Heading>
       {data.dog.story}
+      <br></br>
+      {meData?.me?.id === data.dog.ownerId ? (
+        <EditDeleteDoggoButtons id={data.dog.id} />
+      ) : null}
     </LayOut>
   );
 };

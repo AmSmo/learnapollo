@@ -56,7 +56,7 @@ __decorate([
     __metadata("design:type", Array)
 ], User.prototype, "doggos", void 0);
 __decorate([
-    typeorm_1.OneToMany(() => Morsel_1.Morsel, (morsel) => morsel.user),
+    typeorm_1.OneToMany(() => Morsel_1.Morsel, (morsel) => morsel.user, { onDelete: "CASCADE" }),
     __metadata("design:type", Array)
 ], User.prototype, "morsels", void 0);
 User = __decorate([

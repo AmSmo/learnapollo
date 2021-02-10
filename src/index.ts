@@ -16,6 +16,8 @@ import { Doggo } from "./entities/Doggo";
 import { User } from "./entities/User";
 import path from "path";
 import { Morsel } from "./entities/Morsel";
+import { createUserLoader } from "./utils/createUserLoader";
+import { createTreatLoader } from "./utils/createTreatLoader";
 const main = async () => {
   const conn = await createConnection({
     type: "postgres",
@@ -63,7 +65,13 @@ const main = async () => {
       resolvers: [DoggoResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }): MyContext => ({ req, res, redis }),
+    context: ({ req, res }): MyContext => ({
+      req,
+      res,
+      redis,
+      userLoader: createUserLoader(),
+      treatLoader: createTreatLoader(),
+    }),
   });
 
   apolloServer.applyMiddleware({

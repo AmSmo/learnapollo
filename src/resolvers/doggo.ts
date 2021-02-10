@@ -17,6 +17,7 @@ import { MyContext } from "../types";
 import { isAuthenticated } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
 import { Morsel } from "../entities/Morsel";
+import { User } from "../entities/User";
 
 @InputType()
 class DoggoInput {
@@ -42,6 +43,28 @@ export class DoggoResolver {
     return root.story.slice(0, 50) + "...";
   }
 
+  @FieldResolver(() => User)
+  owner(@Root() doggo: Doggo, @Ctx() { userLoader }: MyContext) {
+    return userLoader.load(doggo.ownerId);
+  }
+
+  @FieldResolver(() => Int, { nullable: true })
+  async treatStatus(
+    @Root() doggo: Doggo,
+    @Ctx() { treatLoader, req }: MyContext
+  ) {
+    if (!req.session.userId) {
+      return null;
+    }
+    console.log();
+    const treat = await treatLoader.load({
+      doggoId: doggo.id,
+      userId: doggo.ownerId,
+    });
+
+    return treat ? treat.value : null;
+  }
+
   @Query(() => PaginatedDoggos)
   async doggos(
     @Ctx() { req }: MyContext,
@@ -50,30 +73,18 @@ export class DoggoResolver {
   ): Promise<PaginatedDoggos> {
     const realLimit = Math.min(50, limit);
     const realLimitPlusOne = realLimit + 1;
-    const replacements: any[] = [realLimitPlusOne, req.session.userId || null];
+    const replacements: any[] = [realLimitPlusOne];
     if (cursor) {
       replacements.push(new Date(parseInt(cursor)));
     }
 
     const doggoList = await getConnection().query(
       `
-      SELECT d.*, 
-      json_build_object(
-        'id', u.id,
-        'username', u.username,
-        'createdDate', u."createdDate",
-        'updatedDate', u."updatedDate",
-        'email', u.email  
-      ) as owner,
-      ${
-        req.session.userId
-          ? `(select value from morsel where "userId" = $2 AND "doggoId" = d.id) as "treatStatus"`
-          : `null as "treatStatus"`
-      }
+      SELECT d.*
       FROM doggo as d
       INNER JOIN public.user as u
       ON d."ownerId" = u.id
-      ${cursor ? `WHERE d."createdDate" < $3` : ""}
+      ${cursor ? `WHERE d."createdDate" < $2` : ""}
       ORDER BY d."createdDate" DESC
       limit $1
     `,
@@ -88,7 +99,7 @@ export class DoggoResolver {
 
   @Query(() => Doggo, { nullable: true })
   dog(@Arg("id", () => Int) id: number): Promise<Doggo | undefined> {
-    return Doggo.findOne(id, { relations: ["owner"] });
+    return Doggo.findOne(id);
   }
 
   @Mutation(() => Doggo, { nullable: true })
@@ -105,14 +116,25 @@ export class DoggoResolver {
   }
 
   @Mutation(() => Doggo, { nullable: true })
+  @UseMiddleware(isAuthenticated)
   async updateDog(
     @Arg("id", () => Int) id: number,
-    @Arg("name", () => String) name: string
+    @Arg("name", () => String) name: string,
+    @Arg("story", () => String) story: string,
+    @Ctx() { req }: MyContext
   ): Promise<Doggo | undefined> {
-    let dog = await Doggo.findOne(id);
-    if (dog) {
-      dog.name = name;
-      return dog.save();
+    const result = await getConnection()
+      .createQueryBuilder()
+      .update(Doggo)
+      .set({ name, story })
+      .where(`id = :id and "ownerId" = :ownerId`, {
+        id,
+        ownerId: req.session.userId,
+      })
+      .returning("*")
+      .execute();
+    if (result) {
+      return result.raw[0];
     } else {
       return undefined;
     }
@@ -162,11 +184,15 @@ export class DoggoResolver {
     @Arg("id", () => Int) id: number,
     @Ctx() { req }: MyContext
   ): Promise<boolean> {
-    console.log("what", id);
-    if (Doggo.delete({ id, ownerId: req.session.userId })) {
-      return true;
-    } else {
+    const doggo = await Doggo.findOne(id);
+    if (!doggo) {
       return false;
     }
+    if (doggo.ownerId !== req.session.userId) {
+      throw new Error("Not Authorized");
+    }
+    // await Morsel.delete({ doggoId: id });
+    await Doggo.delete({ id });
+    return true;
   }
 }

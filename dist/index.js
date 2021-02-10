@@ -29,6 +29,8 @@ const Doggo_1 = require("./entities/Doggo");
 const User_1 = require("./entities/User");
 const path_1 = __importDefault(require("path"));
 const Morsel_1 = require("./entities/Morsel");
+const createUserLoader_1 = require("./utils/createUserLoader");
+const createTreatLoader_1 = require("./utils/createTreatLoader");
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const conn = yield typeorm_1.createConnection({
         type: "postgres",
@@ -69,7 +71,13 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
             resolvers: [doggo_1.DoggoResolver, user_1.UserResolver],
             validate: false,
         }),
-        context: ({ req, res }) => ({ req, res, redis }),
+        context: ({ req, res }) => ({
+            req,
+            res,
+            redis,
+            userLoader: createUserLoader_1.createUserLoader(),
+            treatLoader: createTreatLoader_1.createTreatLoader(),
+        }),
     });
     apolloServer.applyMiddleware({
         app,

@@ -1,0 +1,8 @@
+mutation UpdateDog($id: Int!, $story: String!, $name: String!) {
+  updateDog(id: $id, story: $story, name: $name) {
+    id
+    name
+    story
+    textSnippet
+  }
+}

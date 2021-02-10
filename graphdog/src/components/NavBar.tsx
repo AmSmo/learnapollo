@@ -5,9 +5,11 @@ import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 import { isServer } from "../utils/isServer";
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../utils/createUrqlClient";
+import { useRouter } from "next/router";
 interface NavBarProps {}
 
 const NavBar: React.FC<NavBarProps> = () => {
+  const router = useRouter();
   const [{ data, fetching }] = useMeQuery({
     pause: isServer(),
   });
@@ -45,7 +47,10 @@ const NavBar: React.FC<NavBarProps> = () => {
         >
           <Button
             variant="link"
-            onClick={() => logout()}
+            onClick={async () => {
+              await logout();
+              router.reload();
+            }}
             isLoading={logoutFetching}
           >
             Logout

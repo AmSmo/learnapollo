@@ -1,4 +1,9 @@
-import { cacheExchange, FieldInfo, Resolver } from "@urql/exchange-graphcache";
+import {
+  cacheExchange,
+  FieldInfo,
+  Resolver,
+  Cache,
+} from "@urql/exchange-graphcache";
 import gql from "graphql-tag";
 import Router from "next/router";
 
@@ -56,7 +61,13 @@ export const cursorPagination = (): Resolver => {
     return { __typename: "PaginatedDoggos", doggos: results, hasMore };
   };
 };
-
+const invalidateAllDogs = (cache: Cache) => {
+  const allFields = cache.inspectFields("Query");
+  const fieldInfos = allFields.filter((info) => info.fieldName == "doggos");
+  fieldInfos.forEach((fi) => {
+    cache.invalidate("Query", "doggos", fi.arguments || {});
+  });
+};
 const errorExchange: Exchange = ({ forward }) => (ops$) => {
   return pipe(
     forward(ops$),
@@ -73,7 +84,7 @@ const errorExchange: Exchange = ({ forward }) => (ops$) => {
 export const createUrqlClient = (ssrExchange: any, ctx: any) => {
   let cookie = "";
   if (isServer()) {
-    cookie = ctx?.req.headers.cookie;
+    cookie = ctx?.req?.headers?.cookie;
   }
   return {
     url: "http://localhost:5000/graphql",
@@ -128,15 +139,10 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
               }
             },
             createDog: (result, args, cache, info) => {
-              const allFields = cache.inspectFields("Query");
-              const fieldInfos = allFields.filter(
-                (info) => info.fieldName == "doggos"
-              );
-              fieldInfos.forEach((fi) => {
-                cache.invalidate("Query", "doggos", fi.arguments || {});
-              });
+              invalidateAllDogs(cache);
             },
             logout: (result, args, cache, info) => {
+              invalidateAllDogs(cache);
               betterUpdateQuery<LogoutMutation, MeQuery>(
                 cache,
                 { query: MeDocument },
@@ -145,6 +151,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
               );
             },
             login: (result, args, cache, info) => {
+              invalidateAllDogs(cache);
               betterUpdateQuery<LoginMutation, MeQuery>(
                 cache,
                 { query: MeDocument },

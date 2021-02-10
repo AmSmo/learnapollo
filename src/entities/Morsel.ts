@@ -23,6 +23,6 @@ export class Morsel extends BaseEntity {
   user: User;
 
   @Field(() => Doggo)
-  @ManyToOne(() => Doggo, (doggo) => doggo.morsels)
+  @ManyToOne(() => Doggo, (doggo) => doggo.morsels, { onDelete: "CASCADE" })
   doggo: Doggo;
 }
