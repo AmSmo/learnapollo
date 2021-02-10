@@ -31,11 +31,30 @@ const NavBar: React.FC<NavBarProps> = () => {
     );
   } else {
     body = (
-      <Flex width="20vw" justifyContent="space-around" align="center">
-        <Button onClick={() => logout()} isLoading={logoutFetching}>
-          Logout
-        </Button>
-        <Box>{data.me.username}</Box>
+      <Flex>
+        <NextLink href="/">
+          <Link ml={4} fontSize="2xl" fontWeight="bold">
+            Doggos!
+          </Link>
+        </NextLink>
+        <Flex
+          ml="auto"
+          width="20vw"
+          justifyContent="space-around"
+          align="center"
+        >
+          <Button
+            variant="link"
+            onClick={() => logout()}
+            isLoading={logoutFetching}
+          >
+            Logout
+          </Button>
+          <NextLink href="/adopt-dog">
+            <Link m={"0px 20px"}>Adopt a Dog</Link>
+          </NextLink>
+          <Box>{data.me.username}</Box>
+        </Flex>
       </Flex>
     );
   }

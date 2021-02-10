@@ -1,0 +1,3 @@
+mutation DeleteDog($id: Int!) {
+  deleteDog(id: $id)
+}

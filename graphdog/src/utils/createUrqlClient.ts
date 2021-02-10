@@ -10,14 +10,12 @@ import {
 } from "urql";
 import { pipe, tap } from "wonka";
 import {
-  DoggosQuery,
-  FeedMutation,
+  DeleteDogMutationVariables,
   FeedMutationVariables,
   LoginMutation,
   LogoutMutation,
   MeDocument,
   MeQuery,
-  PaginatedDoggos,
   RegisterMutation,
 } from "../generated/graphql";
 import { betterUpdateQuery } from "./betterUpdate";
@@ -94,6 +92,12 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
         resolvers: { Query: { doggos: cursorPagination() } },
         updates: {
           Mutation: {
+            deleteDog: (_result, args, cache, info) => {
+              cache.invalidate({
+                __typename: "Doggo",
+                id: (args as DeleteDogMutationVariables).id,
+              });
+            },
             feed: (_result, args, cache, info) => {
               const { doggoId, value } = args as FeedMutationVariables;
               const data = cache.readFragment(

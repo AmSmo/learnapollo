@@ -6,6 +6,7 @@ import {
   Link,
   Stack,
   Text,
+  IconButton,
 } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import NextLink from "next/link";
@@ -13,7 +14,7 @@ import React, { useState } from "react";
 import NavBar from "../components/NavBar";
 import Treats from "../components/Treat";
 import Wrapper from "../components/Wrapper";
-import { useDoggosQuery } from "../generated/graphql";
+import { useDeleteDogMutation, useDoggosQuery } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 const Index = () => {
   const [variables, setVariables] = useState({
@@ -23,33 +24,52 @@ const Index = () => {
   const [{ data, fetching }] = useDoggosQuery({
     variables,
   });
-
+  const [, deleteDog] = useDeleteDogMutation();
   return (
     <div>
       <NavBar pageProps />
-      <NextLink href="/adopt-dog">
-        <Link ml="auto">Adopt a Dog</Link>
-      </NextLink>
+
       <br></br>
       <Wrapper variant="regular">
         <Stack spacing={8}>
           {data ? (
-            data.doggos.doggos.map((dog) => (
-              <Box key={dog.id} p={5} shadow="md" borderWidth="1px">
-                <Flex>
-                  <NextLink href="/doggo/[id]" as={`/doggo/${dog.id}`}>
-                    <Link>
-                      <Heading fontSize="xl">{dog.name}</Heading>
-                    </Link>
-                  </NextLink>
-                  <Treats dog={dog} />
-                </Flex>
-                <Text pl={7} fontSize="sm" mt={2}>
-                  <strong>Lucky Dog Owner</strong>: {dog.owner.username}
-                </Text>
-                <Text mt={4}>{dog.textSnippet}</Text>
-              </Box>
-            ))
+            data.doggos.doggos.map((dog) =>
+              !dog ? null : (
+                <Box key={dog.id} p={5} shadow="md" borderWidth="1px">
+                  <Flex>
+                    <NextLink href="/doggo/[id]" as={`/doggo/${dog.id}`}>
+                      <Link>
+                        <Heading fontSize="xl">{dog.name}</Heading>
+                      </Link>
+                    </NextLink>
+                  </Flex>
+                  <Flex>
+                    <Box width="80%">
+                      <Text pl={7} fontSize="sm" mt={2}>
+                        <strong>Lucky Dog Owner</strong>: {dog.owner.username}
+                      </Text>
+                      <Text mt={4}>{dog.textSnippet}</Text>
+                    </Box>
+                    <Box width="20%" ml="auto" textAlign="right">
+                      <Treats dog={dog} />
+                      <IconButton
+                        icon="delete"
+                        aria-label="Delete Dog"
+                        mt={10}
+                        mr={2}
+                        size="md"
+                        position="relative"
+                        ml="auto"
+                        onClick={() => {
+                          console.log("DSAA");
+                          deleteDog({ id: parseInt(dog.id) });
+                        }}
+                      />
+                    </Box>
+                  </Flex>
+                </Box>
+              )
+            )
           ) : (
             <div>Loading..</div>
           )}

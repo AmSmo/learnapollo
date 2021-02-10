@@ -204,6 +204,16 @@ export type CreateDogMutation = (
   )> }
 );
 
+export type DeleteDogMutationVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type DeleteDogMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'deleteDog'>
+);
+
 export type FeedMutationVariables = Exact<{
   value: Scalars['Int'];
   doggoId: Scalars['Int'];
@@ -373,6 +383,15 @@ export const CreateDogDocument = gql`
 
 export function useCreateDogMutation() {
   return Urql.useMutation<CreateDogMutation, CreateDogMutationVariables>(CreateDogDocument);
+};
+export const DeleteDogDocument = gql`
+    mutation DeleteDog($id: Int!) {
+  deleteDog(id: $id)
+}
+    `;
+
+export function useDeleteDogMutation() {
+  return Urql.useMutation<DeleteDogMutation, DeleteDogMutationVariables>(DeleteDogDocument);
 };
 export const FeedDocument = gql`
     mutation Feed($value: Int!, $doggoId: Int!) {

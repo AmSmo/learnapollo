@@ -146,9 +146,10 @@ let DoggoResolver = class DoggoResolver {
             return true;
         });
     }
-    deleteDog(id) {
+    deleteDog(id, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (Doggo_1.Doggo.delete(id)) {
+            console.log("what", id);
+            if (Doggo_1.Doggo.delete({ id, ownerId: req.session.userId })) {
                 return true;
             }
             else {
@@ -209,9 +210,11 @@ __decorate([
 ], DoggoResolver.prototype, "feed", null);
 __decorate([
     type_graphql_1.Mutation(() => Boolean, { nullable: true }),
+    type_graphql_1.UseMiddleware(isAuth_1.isAuthenticated),
     __param(0, type_graphql_1.Arg("id", () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], DoggoResolver.prototype, "deleteDog", null);
 DoggoResolver = __decorate([

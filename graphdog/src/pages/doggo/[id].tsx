@@ -1,3 +1,4 @@
+import { Box, Heading } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import { useRouter } from "next/router";
 import React from "react";
@@ -18,7 +19,20 @@ export const DoggoInfo: React.FC<DoggoProps> = ({}) => {
     variables: { id },
   });
   console.log(data);
-  return <LayOut>{data?.dog?.name}</LayOut>;
+
+  if (!data?.dog) {
+    return (
+      <LayOut>
+        <Box>No such pup!</Box>
+      </LayOut>
+    );
+  }
+  return (
+    <LayOut>
+      <Heading>{data.dog.name}</Heading>
+      {data.dog.story}
+    </LayOut>
+  );
 };
 
 export default withUrqlClient(createUrqlClient, { ssr: true })(DoggoInfo);

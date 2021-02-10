@@ -157,8 +157,13 @@ export class DoggoResolver {
   }
 
   @Mutation(() => Boolean, { nullable: true })
-  async deleteDog(@Arg("id", () => Int) id: number): Promise<boolean> {
-    if (Doggo.delete(id)) {
+  @UseMiddleware(isAuthenticated)
+  async deleteDog(
+    @Arg("id", () => Int) id: number,
+    @Ctx() { req }: MyContext
+  ): Promise<boolean> {
+    console.log("what", id);
+    if (Doggo.delete({ id, ownerId: req.session.userId })) {
       return true;
     } else {
       return false;
