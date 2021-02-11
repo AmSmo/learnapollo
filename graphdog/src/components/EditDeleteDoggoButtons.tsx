@@ -3,11 +3,11 @@ import { IconButton, Link } from "@chakra-ui/react";
 import React from "react";
 import { useDeleteDogMutation } from "../generated/graphql";
 import NextLink from "next/link";
-interface EditDeleteDoggoButtons {
+interface EditDeleteDoggoProps {
   id: number;
 }
 
-const EditDeleteDoggoButtons = ({ id }) => {
+const EditDeleteDoggoButtons: React.FC<EditDeleteDoggoProps> = ({ id }) => {
   const [deleteDog] = useDeleteDogMutation();
   return (
     <>

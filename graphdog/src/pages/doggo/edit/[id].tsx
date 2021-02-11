@@ -10,7 +10,6 @@ import {
   useUpdateDogMutation,
 } from "../../../generated/graphql";
 
-import { createUrqlClient } from "../../../utils/createUrqlClient";
 import { useGetDoggo } from "../../../utils/getDoggo";
 
 interface DoggoProps {}
@@ -40,9 +39,9 @@ export const DogUpdate: React.FC<DoggoProps> = ({}) => {
         }}
         onSubmit={async (values: UpdateDogMutationVariables, { setErrors }) => {
           const resp = await updateDog({
-            variables: { id: data.dog.id, ...values },
+            variables: { ...values },
           });
-          if (!resp.error) {
+          if (!resp.errors) {
             router.push(`/doggo/${data?.dog?.id}`);
           }
         }}
@@ -71,4 +70,4 @@ export const DogUpdate: React.FC<DoggoProps> = ({}) => {
   );
 };
 
-export default withUrqlClient(createUrqlClient, { ssr: true })(DogUpdate);
+export default DogUpdate;

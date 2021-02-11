@@ -26,7 +26,7 @@ const Index = () => {
   const { data: meData } = useMeQuery();
   return (
     <div>
-      <NavBar pageProps />
+      <NavBar />
 
       <br></br>
       <Wrapper variant="regular">

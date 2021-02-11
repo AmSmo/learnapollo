@@ -74,7 +74,7 @@ let DoggoResolver = class DoggoResolver {
             return treat ? treat.value : null;
         });
     }
-    doggos({ req }, limit, cursor) {
+    doggos(limit, cursor) {
         return __awaiter(this, void 0, void 0, function* () {
             const realLimit = Math.min(50, limit);
             const realLimitPlusOne = realLimit + 1;
@@ -199,11 +199,10 @@ __decorate([
 ], DoggoResolver.prototype, "treatStatus", null);
 __decorate([
     type_graphql_1.Query(() => PaginatedDoggos),
-    __param(0, type_graphql_1.Ctx()),
-    __param(1, type_graphql_1.Arg("limit", () => type_graphql_1.Int)),
-    __param(2, type_graphql_1.Arg("cursor", () => String, { nullable: true })),
+    __param(0, type_graphql_1.Arg("limit", () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Arg("cursor", () => String, { nullable: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Number, Object]),
+    __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], DoggoResolver.prototype, "doggos", null);
 __decorate([

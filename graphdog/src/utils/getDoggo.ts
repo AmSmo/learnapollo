@@ -6,7 +6,7 @@ export const useGetDoggo = () => {
   const id =
     typeof router.query.id === "string" ? parseInt(router.query.id) : -1;
   return useDoggoQuery({
-    pause: id === -1,
+    skip: id === -1,
     variables: { id },
   });
 };

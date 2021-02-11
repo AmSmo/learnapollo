@@ -67,7 +67,6 @@ export class DoggoResolver {
 
   @Query(() => PaginatedDoggos)
   async doggos(
-    @Ctx() { req }: MyContext,
     @Arg("limit", () => Int) limit: number,
     @Arg("cursor", () => String, { nullable: true }) cursor: string | null
   ): Promise<PaginatedDoggos> {

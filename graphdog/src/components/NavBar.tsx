@@ -3,8 +3,6 @@ import { Flex, Button, Box, Link } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 import { isServer } from "../utils/isServer";
-import { withUrqlClient } from "next-urql";
-import { createUrqlClient } from "../utils/createUrqlClient";
 import { useRouter } from "next/router";
 interface NavBarProps {}
 
