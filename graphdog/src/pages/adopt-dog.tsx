@@ -22,7 +22,7 @@ export const AdoptDog: React.FC<adoptDogProps> = ({}) => {
           const resp = await createDog({
             variables: { options: { ...values } },
           });
-          if (!resp.error) {
+          if (!resp.errors) {
             router.push("/");
           }
         }}
