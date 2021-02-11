@@ -10,12 +10,12 @@ interface NavBarProps {}
 
 const NavBar: React.FC<NavBarProps> = () => {
   const router = useRouter();
-  const [{ data, fetching }] = useMeQuery({
-    pause: isServer(),
+  const { data, loading } = useMeQuery({
+    skip: isServer(),
   });
-  const [{ fetching: logoutFetching }, logout] = useLogoutMutation();
+  const [logout, { loading: logoutloading }] = useLogoutMutation();
   let body = null;
-  if (fetching) {
+  if (loading) {
   } else if (!data?.me) {
     body = (
       <>
@@ -51,7 +51,7 @@ const NavBar: React.FC<NavBarProps> = () => {
               await logout();
               router.reload();
             }}
-            isLoading={logoutFetching}
+            isLoading={logoutloading}
           >
             Logout
           </Button>
@@ -70,4 +70,4 @@ const NavBar: React.FC<NavBarProps> = () => {
   );
 };
 
-export default withUrqlClient(createUrqlClient)(NavBar);
+export default NavBar;

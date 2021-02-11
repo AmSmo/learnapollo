@@ -6,32 +6,24 @@ import {
   Link,
   Stack,
   Text,
-  IconButton,
-  Icon,
 } from "@chakra-ui/react";
-import { withUrqlClient } from "next-urql";
+
 import NextLink from "next/link";
 import React, { useState } from "react";
 import EditDeleteDoggoButtons from "../components/EditDeleteDoggoButtons";
 import NavBar from "../components/NavBar";
 import Treats from "../components/Treat";
 import Wrapper from "../components/Wrapper";
-import {
-  useDeleteDogMutation,
-  useDoggosQuery,
-  useMeQuery,
-} from "../generated/graphql";
-import { createUrqlClient } from "../utils/createUrqlClient";
+import { useDoggosQuery, useMeQuery } from "../generated/graphql";
 const Index = () => {
   const [variables, setVariables] = useState({
     limit: 10,
     cursor: null as null | string,
   });
-  const [{ data, fetching }] = useDoggosQuery({
+  const { data, loading } = useDoggosQuery({
     variables,
   });
-  const [{ data: meData }] = useMeQuery();
-  const [, deleteDog] = useDeleteDogMutation();
+  const { data: meData } = useMeQuery();
   return (
     <div>
       <NavBar pageProps />
@@ -73,7 +65,7 @@ const Index = () => {
 
           {data && data.doggos.hasMore ? (
             <Button
-              isLoading={fetching}
+              isLoading={loading}
               onClick={() =>
                 setVariables({
                   limit: variables.limit,
@@ -88,7 +80,7 @@ const Index = () => {
             </Button>
           ) : null}
         </Stack>
-        {!fetching && !data ? <p>Well That didn't work</p> : null}
+        {!loading && !data ? <p>Well That didn't work</p> : null}
       </Wrapper>
     </div>
   );

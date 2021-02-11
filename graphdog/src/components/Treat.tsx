@@ -12,11 +12,11 @@ interface TreatProps {
 }
 
 const Treats: React.FC<TreatProps> = ({ dog }) => {
-  const [{ data }] = useMeQuery();
+  const { data } = useMeQuery();
   const [loadingState, setLoadingState] = useState<
     "up-loading" | "down-loading" | "not-loading"
   >("not-loading");
-  const [, feed] = useFeedMutation();
+  const [feed] = useFeedMutation();
   if (data?.me) {
     return (
       <Text ml="auto">
@@ -31,7 +31,7 @@ const Treats: React.FC<TreatProps> = ({ dog }) => {
               return;
             }
             setLoadingState("up-loading");
-            await feed({ value: 1, doggoId: dog.id });
+            await feed({ variables: { value: 1, doggoId: dog.id } });
             setLoadingState("not-loading");
           }}
           isLoading={loadingState === "up-loading"}
@@ -50,7 +50,7 @@ const Treats: React.FC<TreatProps> = ({ dog }) => {
               return;
             }
             setLoadingState("down-loading");
-            await feed({ value: -1, doggoId: dog.id });
+            await feed({ variables: { value: -1, doggoId: dog.id } });
             setLoadingState("not-loading");
           }}
         />

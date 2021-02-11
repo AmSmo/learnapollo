@@ -8,7 +8,7 @@ interface EditDeleteDoggoButtons {
 }
 
 const EditDeleteDoggoButtons = ({ id }) => {
-  const [, deleteDog] = useDeleteDogMutation();
+  const [deleteDog] = useDeleteDogMutation();
   return (
     <>
       <IconButton
@@ -20,7 +20,7 @@ const EditDeleteDoggoButtons = ({ id }) => {
         position="relative"
         ml="auto"
         onClick={() => {
-          deleteDog({ id });
+          deleteDog({ variables: { id } });
         }}
       />
       <NextLink href="doggo/edit/[id]" as={`/doggo/edit/${id}`}>

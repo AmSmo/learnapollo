@@ -16,10 +16,10 @@ import { useGetDoggo } from "../../../utils/getDoggo";
 interface DoggoProps {}
 
 export const DogUpdate: React.FC<DoggoProps> = ({}) => {
-  const [{ data, fetching }] = useGetDoggo();
-  const [, updateDog] = useUpdateDogMutation();
+  const { data, loading } = useGetDoggo();
+  const [updateDog] = useUpdateDogMutation();
   const router = useRouter();
-  if (fetching) {
+  if (loading) {
     return <LayOut>Loading...</LayOut>;
   }
   if (!data?.dog) {
@@ -39,7 +39,9 @@ export const DogUpdate: React.FC<DoggoProps> = ({}) => {
           story: data.dog.story,
         }}
         onSubmit={async (values: UpdateDogMutationVariables, { setErrors }) => {
-          const resp = await updateDog({ id: data.dog.id, ...values });
+          const resp = await updateDog({
+            variables: { id: data.dog.id, ...values },
+          });
           if (!resp.error) {
             router.push(`/doggo/${data?.dog?.id}`);
           }

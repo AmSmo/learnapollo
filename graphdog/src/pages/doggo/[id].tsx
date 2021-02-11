@@ -10,8 +10,8 @@ import { useGetDoggo } from "../../utils/getDoggo";
 interface DoggoProps {}
 
 export const DoggoInfo: React.FC<DoggoProps> = ({}) => {
-  const [{ data: meData }] = useMeQuery();
-  const [{ data, fetching }] = useGetDoggo();
+  const { data: meData } = useMeQuery();
+  const { data, loading } = useGetDoggo();
 
   if (!data?.dog) {
     return (
