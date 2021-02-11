@@ -6,7 +6,11 @@ import React, { useState } from "react";
 import { InputField } from "../../components/InputField";
 import Wrapper from "../../components/Wrapper";
 import { toErrorMap } from "../../utils/toErrorMap";
-import { useChangePasswordMutation } from "../../generated/graphql";
+import {
+  MeDocument,
+  MeQuery,
+  useChangePasswordMutation,
+} from "../../generated/graphql";
 
 import NextLink from "next/link";
 
@@ -25,6 +29,16 @@ const ChangePassword: NextPage<{}> = () => {
             variables: {
               newPassword: values.newPassword,
               token,
+            },
+            update: (cache, { data }) => {
+              cache.writeQuery<MeQuery>({
+                query: MeDocument,
+                data: {
+                  __typename: "Query",
+                  me: data?.changePassword.user,
+                },
+              });
+              cache.evict({ fieldName: "doggos" });
             },
           });
 

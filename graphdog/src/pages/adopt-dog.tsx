@@ -6,6 +6,7 @@ import React from "react";
 import { InputField } from "../components/InputField";
 import LayOut from "../components/LayOut";
 import { useCreateDogMutation } from "../generated/graphql";
+import { withApollo } from "../utils/createWithApollo";
 import { useIsAuth } from "../utils/useIsAuth";
 
 interface adoptDogProps {}
@@ -21,6 +22,9 @@ export const AdoptDog: React.FC<adoptDogProps> = ({}) => {
         onSubmit={async (values, { setErrors }) => {
           const resp = await createDog({
             variables: { options: { ...values } },
+            update: (cache) => {
+              cache.evict({ fieldName: "doggos" });
+            },
           });
           if (!resp.errors) {
             router.push("/");

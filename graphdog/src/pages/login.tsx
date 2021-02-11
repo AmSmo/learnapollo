@@ -3,7 +3,7 @@ import { Button, Flex, Link } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
 import { InputField } from "../components/InputField";
 import { toErrorMap } from "../utils/toErrorMap";
-import { useLoginMutation } from "../generated/graphql";
+import { MeDocument, MeQuery, useLoginMutation } from "../generated/graphql";
 import { useRouter } from "next/router";
 
 import NextLink from "next/link";
@@ -20,7 +20,19 @@ const Login: React.FC<LoginProps> = ({}) => {
       <Formik
         initialValues={{ username: "", password: "" }}
         onSubmit={async (values, { setErrors }) => {
-          const resp = await login({ variables: values });
+          const resp = await login({
+            variables: values,
+            update: (cache, { data }) => {
+              cache.writeQuery<MeQuery>({
+                query: MeDocument,
+                data: {
+                  __typename: "Query",
+                  me: data?.login.user,
+                },
+              });
+              cache.evict({ fieldName: "doggos" });
+            },
+          });
           if (resp.data?.login.errors) {
             setErrors(toErrorMap(resp.data.login.errors));
           } else if (resp.data?.login.user) {
