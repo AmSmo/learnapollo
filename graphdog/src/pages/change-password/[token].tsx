@@ -7,8 +7,7 @@ import { InputField } from "../../components/InputField";
 import Wrapper from "../../components/Wrapper";
 import { toErrorMap } from "../../utils/toErrorMap";
 import { useChangePasswordMutation } from "../../generated/graphql";
-import { createUrqlClient } from "../../utils/createUrqlClient";
-import { withUrqlClient } from "next-urql";
+
 import NextLink from "next/link";
 
 const ChangePassword: NextPage<{}> = () => {
@@ -71,4 +70,4 @@ const ChangePassword: NextPage<{}> = () => {
   );
 };
 
-export default withUrqlClient(createUrqlClient)(ChangePassword);
+export default ChangePassword;

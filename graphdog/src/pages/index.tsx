@@ -14,14 +14,22 @@ import EditDeleteDoggoButtons from "../components/EditDeleteDoggoButtons";
 import NavBar from "../components/NavBar";
 import Treats from "../components/Treat";
 import Wrapper from "../components/Wrapper";
-import { useDoggosQuery, useMeQuery } from "../generated/graphql";
+import {
+  DoggoQuery,
+  DoggosQuery,
+  useDoggosQuery,
+  useMeQuery,
+} from "../generated/graphql";
+import { withApollo } from "../utils/createWithApollo";
 const Index = () => {
-  const [variables, setVariables] = useState({
-    limit: 10,
-    cursor: null as null | string,
-  });
-  const { data, loading } = useDoggosQuery({
-    variables,
+  // OLD URQL PAGINATION
+  // const [variables, setVariables] = useState({
+  //   limit: 10,
+  //   cursor: null as null | string,
+  // });
+  const { data, loading, fetchMore, variables } = useDoggosQuery({
+    variables: { limit: 10, cursor: null as null | string },
+    notifyOnNetworkStatusChange: true,
   });
   const { data: meData } = useMeQuery();
   return (
@@ -66,13 +74,44 @@ const Index = () => {
           {data && data.doggos.hasMore ? (
             <Button
               isLoading={loading}
-              onClick={() =>
-                setVariables({
-                  limit: variables.limit,
-                  cursor:
-                    data.doggos.doggos[data.doggos.doggos.length - 1]
-                      .createdDate,
-                })
+              onClick={
+                () => {
+                  fetchMore({
+                    variables: {
+                      limit: variables?.limit,
+                      cursor:
+                        data.doggos.doggos[data.doggos.doggos.length - 1]
+                          .createdDate,
+                    },
+                    updateQuery: (
+                      previousResult,
+                      { fetchMoreResult }: { fetchMoreResult: DoggosQuery }
+                    ) => {
+                      if (!fetchMoreResult) {
+                        return previousResult as DoggosQuery;
+                      } else {
+                        return {
+                          __typename: "Query",
+                          doggos: {
+                            __typename: "PaginatedDoggos",
+                            hasMore: fetchMoreResult.doggos.hasMore,
+                            doggos: [
+                              ...previousResult.doggos.doggos,
+                              ...fetchMoreResult.doggos.doggos,
+                            ],
+                          },
+                        };
+                      }
+                    },
+                  });
+                }
+                // OLD URQL WAY
+                // setVariables({
+                //   limit: variables.limit,
+                //   cursor:
+                //     data.doggos.doggos[data.doggos.doggos.length - 1]
+                //       .createdDate,
+                // })
               }
             >
               {" "}
@@ -86,7 +125,7 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default withApollo({ ssr: true })(Index);
 
 // URQL WAY BELOW
 

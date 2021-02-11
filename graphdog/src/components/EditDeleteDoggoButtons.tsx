@@ -20,7 +20,12 @@ const EditDeleteDoggoButtons: React.FC<EditDeleteDoggoProps> = ({ id }) => {
         position="relative"
         ml="auto"
         onClick={() => {
-          deleteDog({ variables: { id } });
+          deleteDog({
+            variables: { id },
+            update: (cache) => {
+              cache.evict({ id: "Doggo:" + id });
+            },
+          });
         }}
       />
       <NextLink href="doggo/edit/[id]" as={`/doggo/edit/${id}`}>

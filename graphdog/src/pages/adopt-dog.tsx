@@ -51,4 +51,4 @@ export const AdoptDog: React.FC<adoptDogProps> = ({}) => {
   );
 };
 
-export default AdoptDog;
+export default withApollo({ ssr: false })(AdoptDog);

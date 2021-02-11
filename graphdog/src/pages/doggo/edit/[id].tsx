@@ -1,6 +1,6 @@
 import { Box, Button, Heading } from "@chakra-ui/react";
 import { Form, Formik } from "formik";
-import { withUrqlClient } from "next-urql";
+
 import { useRouter } from "next/router";
 import React from "react";
 import { InputField } from "../../../components/InputField";
@@ -9,6 +9,7 @@ import {
   UpdateDogMutationVariables,
   useUpdateDogMutation,
 } from "../../../generated/graphql";
+import { withApollo } from "../../../utils/createWithApollo";
 
 import { useGetDoggo } from "../../../utils/getDoggo";
 
@@ -70,4 +71,4 @@ export const DogUpdate: React.FC<DoggoProps> = ({}) => {
   );
 };
 
-export default DogUpdate;
+export default withApollo({ ssr: false })(DogUpdate);

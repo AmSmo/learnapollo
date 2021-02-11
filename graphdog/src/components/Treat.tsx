@@ -1,7 +1,9 @@
 import { TriangleUpIcon, TriangleDownIcon } from "@chakra-ui/icons";
 import { IconButton, Text } from "@chakra-ui/react";
 import React, { useState } from "react";
+import gql from "graphql-tag";
 import {
+  Doggo,
   DoggoSnippetFragment,
   useFeedMutation,
   useMeQuery,
@@ -10,6 +12,40 @@ import {
 interface TreatProps {
   dog: DoggoSnippetFragment;
 }
+
+const updateAfterFeeding = (value: number, cache: any, dogId: number) => {
+  const data = cache.readFragment({
+    id: "Doggo:" + dogId,
+    fragment: gql`
+      fragment _ on Doggo {
+        id
+        treats
+        treatStatus
+      }
+    `,
+  });
+  console.log("this far");
+  if (data) {
+    const newPoints =
+      (data.treats as number) + (!data.treatStatus ? 1 : 2) * value;
+    if (data.treatStatus === value) {
+      return;
+    }
+    cache.writeFragment({
+      id: "Doggo:" + dogId,
+      fragment: gql`
+        fragment __ on Doggo {
+          treats
+          treatStatus
+        }
+      `,
+      data: {
+        treats: newPoints,
+        treatStatus: value,
+      },
+    });
+  }
+};
 
 const Treats: React.FC<TreatProps> = ({ dog }) => {
   const { data } = useMeQuery();
@@ -31,7 +67,10 @@ const Treats: React.FC<TreatProps> = ({ dog }) => {
               return;
             }
             setLoadingState("up-loading");
-            await feed({ variables: { value: 1, doggoId: dog.id } });
+            await feed({
+              variables: { value: 1, doggoId: dog.id },
+              update: (cache) => updateAfterFeeding(1, cache, dog.id),
+            });
             setLoadingState("not-loading");
           }}
           isLoading={loadingState === "up-loading"}
@@ -50,7 +89,10 @@ const Treats: React.FC<TreatProps> = ({ dog }) => {
               return;
             }
             setLoadingState("down-loading");
-            await feed({ variables: { value: -1, doggoId: dog.id } });
+            await feed({
+              variables: { value: -1, doggoId: dog.id },
+              update: (cache) => updateAfterFeeding(-1, cache, dog.id),
+            });
             setLoadingState("not-loading");
           }}
         />

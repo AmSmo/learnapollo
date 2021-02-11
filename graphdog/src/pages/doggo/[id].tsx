@@ -1,10 +1,9 @@
 import { Box, Heading } from "@chakra-ui/react";
-import { withUrqlClient } from "next-urql";
 import React from "react";
 import EditDeleteDoggoButtons from "../../components/EditDeleteDoggoButtons";
 import LayOut from "../../components/LayOut";
 import { useMeQuery } from "../../generated/graphql";
-import { createUrqlClient } from "../../utils/createUrqlClient";
+import { withApollo } from "../../utils/createWithApollo";
 import { useGetDoggo } from "../../utils/getDoggo";
 
 interface DoggoProps {}
@@ -32,4 +31,4 @@ export const DoggoInfo: React.FC<DoggoProps> = ({}) => {
   );
 };
 
-export default withUrqlClient(createUrqlClient, { ssr: true })(DoggoInfo);
+export default withApollo({ ssr: true })(DoggoInfo);
