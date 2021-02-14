@@ -1,0 +1,2 @@
+class MorselsController < ApplicationController
+end
