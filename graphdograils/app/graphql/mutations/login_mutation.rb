@@ -9,15 +9,18 @@ module Mutations
         
         def resolve(options:)
             
-            user = User.find_by!(username: options[:username])
-            if user && user.authenticate(options[:password])
-                
-                token = Base64.encode64("Userid: #{user.id}")
-                context[:session][:token] = token
-                
-                {user: user}
+            user = User.find_by(username: options[:username])
+            if user 
+                if user.authenticate(options[:password])
+                    token = Base64.encode64("Userid: #{user.id}")
+                    context[:session][:token] = token
+                    
+                    {user: user}
+                else
+                    {errors: [{field: "password", message: "check, no such match found"}]}
+                end
             else
-                {errors: errors}
+                {errors: [{field: "username", message: "didn't find a match"}]}
             end
         end
     end
