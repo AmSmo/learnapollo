@@ -19,7 +19,7 @@ module Types
     field :me, String, null: false,
       description: "checked logged in"
     def me
-      puts context[:session]
+      
       return "LALALALA, you have a lovely singing voice"
     end
   end

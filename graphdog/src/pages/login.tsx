@@ -33,6 +33,7 @@ const Login: React.FC<LoginProps> = ({}) => {
               cache.evict({ fieldName: "doggos" });
             },
           });
+          console.log(resp.data);
           if (resp.data?.login.errors) {
             setErrors(toErrorMap(resp.data.login.errors));
           } else if (resp.data?.login.user) {
