@@ -15,7 +15,7 @@ module Types
     field :has_more, Boolean, null: false,
       description: "Any more"
     def doggos(limit: 10, cursor: nil)
-     {doggos: Doggo.all.limit(limit), has_more: false}
+     return {doggos: Doggo.all.limit(limit), has_more: false}
     end
 
     field :me, String, null: false,

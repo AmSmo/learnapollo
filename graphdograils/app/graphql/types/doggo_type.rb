@@ -8,5 +8,9 @@ module Types
     field :created_date, GraphQL::Types::ISO8601DateTime, null: false
     field :updated_date, GraphQL::Types::ISO8601DateTime, null: false
     field :owner, Types::UserType, null: false
+    field :treats, Integer, null: true
+    field :owner_id, Integer, null: true
+    field :treat_status, Boolean, null: true
+    field :text_snippet, String, null: false
   end
 end

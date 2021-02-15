@@ -22,11 +22,11 @@ const Index = () => {
   //   limit: 10,
   //   cursor: null as null | string,
   // });
-  const { data, loading, fetchMore, variables } = useDoggosQuery({
+  const { data, loading, fetchMore, variables, error } = useDoggosQuery({
     variables: { limit: 10, cursor: null as null | string },
     notifyOnNetworkStatusChange: true,
   });
-  console.log(data);
+  console.log(error);
   const { data: meData } = useMeQuery();
   return (
     <div>

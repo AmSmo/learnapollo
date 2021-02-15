@@ -9,6 +9,13 @@ class Doggo < ApplicationRecord
     self.updated_at
   end
 
+  def text_snippet
+    return "#{self.story[0..15]}..."
+  end
+
+  def treat_status
+    false
+  end
   def owner_id
     self.user_id
   end
