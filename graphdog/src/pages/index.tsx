@@ -14,12 +14,7 @@ import EditDeleteDoggoButtons from "../components/EditDeleteDoggoButtons";
 import NavBar from "../components/NavBar";
 import Treats from "../components/Treat";
 import Wrapper from "../components/Wrapper";
-import {
-  DoggoQuery,
-  DoggosQuery,
-  useDoggosQuery,
-  useMeQuery,
-} from "../generated/graphql";
+import { DoggosQuery, useDoggosQuery, useMeQuery } from "../generated/graphql";
 import { withApollo } from "../utils/createWithApollo";
 const Index = () => {
   // OLD URQL PAGINATION
@@ -31,6 +26,7 @@ const Index = () => {
     variables: { limit: 10, cursor: null as null | string },
     notifyOnNetworkStatusChange: true,
   });
+  console.log(data);
   const { data: meData } = useMeQuery();
   return (
     <div>
@@ -59,9 +55,9 @@ const Index = () => {
                     </Box>
                     <Box width="20%" ml="auto" textAlign="right">
                       <Treats dog={dog} />
-                      {meData?.me?.id === dog.ownerId ? (
+                      {/* {meData?.me?.id === dog.ownerId ? (
                         <EditDeleteDoggoButtons id={dog.id} />
-                      ) : null}
+                      ) : null} */}
                     </Box>
                   </Flex>
                 </Box>
