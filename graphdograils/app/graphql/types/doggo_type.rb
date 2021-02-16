@@ -4,7 +4,7 @@ module Types
     field :name, String, null: false
     field :story, String, null: false
     field :user_id, Integer, null: false
-    field :treat_status, Integer, null: true
+    field :treat_sctatus, Integer, null: true
     field :created_date, GraphQL::Types::ISO8601DateTime, null: false
     field :updated_date, GraphQL::Types::ISO8601DateTime, null: false
     field :owner, Types::UserType, null: false
