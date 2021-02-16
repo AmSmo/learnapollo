@@ -22,12 +22,12 @@ const Index = () => {
   //   limit: 10,
   //   cursor: null as null | string,
   // });
-  const { data, loading, fetchMore, variables, error } = useDoggosQuery({
+  const { data, loading, fetchMore, variables } = useDoggosQuery({
     variables: { limit: 10, cursor: null as null | string },
     notifyOnNetworkStatusChange: true,
   });
-  console.log(error);
   const { data: meData } = useMeQuery();
+
   return (
     <div>
       <NavBar />
@@ -55,9 +55,9 @@ const Index = () => {
                     </Box>
                     <Box width="20%" ml="auto" textAlign="right">
                       <Treats dog={dog} />
-                      {/* {meData?.me?.id === dog.ownerId ? (
+                      {meData?.me?.id === dog.ownerId ? (
                         <EditDeleteDoggoButtons id={dog.id} />
-                      ) : null} */}
+                      ) : null}
                     </Box>
                   </Flex>
                 </Box>

@@ -16,7 +16,6 @@ exports.createTreatLoader = void 0;
 const dataloader_1 = __importDefault(require("dataloader"));
 const Morsel_1 = require("../entities/Morsel");
 const createTreatLoader = () => new dataloader_1.default((keys) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(keys);
     const morsels = yield Morsel_1.Morsel.findByIds(keys);
     const treatIdsToTreats = {};
     morsels.forEach((morsel) => {

@@ -66,7 +66,6 @@ let DoggoResolver = class DoggoResolver {
             if (!req.session.userId) {
                 return null;
             }
-            console.log();
             const treat = yield treatLoader.load({
                 doggoId: doggo.id,
                 userId: doggo.ownerId,

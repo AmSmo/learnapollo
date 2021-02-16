@@ -24,7 +24,7 @@ const updateAfterFeeding = (value: number, cache: any, dogId: number) => {
       }
     `,
   });
-  console.log("this far");
+
   if (data) {
     const newPoints =
       (data.treats as number) + (!data.treatStatus ? 1 : 2) * value;

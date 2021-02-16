@@ -56,7 +56,7 @@ export class DoggoResolver {
     if (!req.session.userId) {
       return null;
     }
-    console.log();
+
     const treat = await treatLoader.load({
       doggoId: doggo.id,
       userId: doggo.ownerId,
