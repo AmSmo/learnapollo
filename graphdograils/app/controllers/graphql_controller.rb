@@ -4,14 +4,15 @@ class GraphqlController < ApplicationController
   # but you'll have to authenticate your user separately
   # protect_from_forgery with: :null_session
 
-  def execute
+  def execute 
+    
     variables = prepare_variables(params[:variables])
     query = params[:query]
     operation_name = params[:operationName]
     context = {
-      session: session
+      session: session,
+      current_user: current_user
     }
-    
     result = GraphdograilsSchema.execute(query, variables: variables, context: context, operation_name: operation_name)
     render json: result
   rescue => e
@@ -20,6 +21,7 @@ class GraphqlController < ApplicationController
   end
 
   private
+
 
   # Handle variables in form data, JSON body, or a blank value
   def prepare_variables(variables_param)
@@ -39,6 +41,15 @@ class GraphqlController < ApplicationController
     else
       raise ArgumentError, "Unexpected parameter: #{variables_param}"
     end
+  end
+
+  def current_user
+    if session[:kik]
+        user = User.find_by(id: session[:kik])
+        return user
+      else
+        nil
+      end
   end
 
   def handle_error_in_development(e)

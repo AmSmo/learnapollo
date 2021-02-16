@@ -12,9 +12,7 @@ module Mutations
             user = User.find_by(username: options[:username])
             if user 
                 if user.authenticate(options[:password])
-                    token = Base64.encode64("Userid: #{user.id}")
-                    context[:session][:token] = token
-                    
+                    context[:session][:kik] = user.id
                     {user: user}
                 else
                     {errors: [{field: "password", message: "check, no such match found"}]}

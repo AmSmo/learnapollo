@@ -18,10 +18,28 @@ module Types
      return {doggos: Doggo.all.limit(limit), has_more: false}
     end
 
-    field :me, String, null: false,
+    field :dog, Types::DoggoType, null: true,
+      description: "Returns Doggo" do 
+        argument :id, Integer, required: false
+      end
+    def dog(id:)
+     dog = Doggo.find_by(id: id)
+     if dog
+      {doggo: dog}
+     else
+      {doggo: nil}
+     end
+    end
+
+    field :me, Types::UserType, null: true, 
       description: "checked logged in"
     def me
-      return "LALALALA, you have a lovely singing voice"
+      if context[:current_user]
+        context[:current_user]
+      else
+        nil
+      end
     end
+
   end
 end
