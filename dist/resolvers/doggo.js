@@ -96,7 +96,7 @@ let DoggoResolver = class DoggoResolver {
             };
         });
     }
-    dog(id) {
+    doggo(id) {
         return Doggo_1.Doggo.findOne(id);
     }
     createDog(options, { req }) {
@@ -210,7 +210,7 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
-], DoggoResolver.prototype, "dog", null);
+], DoggoResolver.prototype, "doggo", null);
 __decorate([
     type_graphql_1.Mutation(() => Doggo_1.Doggo, { nullable: true }),
     type_graphql_1.UseMiddleware(isAuth_1.isAuthenticated),

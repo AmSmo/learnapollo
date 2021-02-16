@@ -97,7 +97,7 @@ export class DoggoResolver {
   }
 
   @Query(() => Doggo, { nullable: true })
-  dog(@Arg("id", () => Int) id: number): Promise<Doggo | undefined> {
+  doggo(@Arg("id", () => Int) id: number): Promise<Doggo | undefined> {
     return Doggo.findOne(id);
   }
 

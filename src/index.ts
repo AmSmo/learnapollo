@@ -82,7 +82,7 @@ const main = async () => {
   app.get("/", (_, res) => {
     res.send("POTATO");
   });
-  app.listen(4000, () => {
+  app.listen(5000, () => {
     console.log("Server successfully created");
   });
 };

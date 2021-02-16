@@ -1,5 +1,5 @@
 query Doggo($id: Int!) {
-  dog(id: $id) {
+  doggo(id: $id) {
     id
     name
     ownerId

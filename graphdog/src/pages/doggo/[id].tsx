@@ -10,9 +10,9 @@ interface DoggoProps {}
 
 export const DoggoInfo: React.FC<DoggoProps> = ({}) => {
   const { data: meData } = useMeQuery();
-  const { data, loading } = useGetDoggo();
-
-  if (!data?.dog) {
+  const { data, loading, error } = useGetDoggo();
+  console.log(error);
+  if (!data?.doggo) {
     return (
       <LayOut>
         <Box>No such pup!</Box>
@@ -21,11 +21,11 @@ export const DoggoInfo: React.FC<DoggoProps> = ({}) => {
   }
   return (
     <LayOut>
-      <Heading>{data.dog.name}</Heading>
-      {data.dog.story}
+      <Heading>{data.doggo.name}</Heading>
+      {data.doggo.story}
       <br></br>
-      {meData?.me?.id === data.dog.ownerId ? (
-        <EditDeleteDoggoButtons id={data.dog.id} />
+      {meData?.me?.id === data.doggo.ownerId ? (
+        <EditDeleteDoggoButtons id={data.doggo.id} />
       ) : null}
     </LayOut>
   );

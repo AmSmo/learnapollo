@@ -18,16 +18,16 @@ module Types
      return {doggos: Doggo.all.limit(limit), has_more: false}
     end
 
-    field :dog, Types::DoggoType, null: true,
+    field :doggo, Types::DoggoType, null: true,
       description: "Returns Doggo" do 
         argument :id, Integer, required: false
       end
-    def dog(id:)
+    def doggo(id:)
      dog = Doggo.find_by(id: id)
      if dog
-      {doggo: dog}
+      dog
      else
-      {doggo: nil}
+      nil
      end
     end
 
