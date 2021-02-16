@@ -53,6 +53,7 @@ const Treats: React.FC<TreatProps> = ({ dog }) => {
     "up-loading" | "down-loading" | "not-loading"
   >("not-loading");
   const [feed] = useFeedMutation();
+  console.log(dog);
   if (data?.me) {
     return (
       <Text ml="auto">

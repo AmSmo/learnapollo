@@ -11,7 +11,7 @@ class GraphqlController < ApplicationController
     operation_name = params[:operationName]
     context = {
       session: session,
-      current_user: current_user
+      current_user: current_user(operation_name)
     }
     result = GraphdograilsSchema.execute(query, variables: variables, context: context, operation_name: operation_name)
     render json: result
@@ -43,7 +43,11 @@ class GraphqlController < ApplicationController
     end
   end
 
-  def current_user
+  def current_user(query)
+    if query == "Logout"
+      session[:kik]=""
+      return nil
+    end
     if session[:kik]
         user = User.find_by(id: session[:kik])
         return user

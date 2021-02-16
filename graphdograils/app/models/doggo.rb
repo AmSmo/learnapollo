@@ -13,9 +13,6 @@ class Doggo < ApplicationRecord
     return "#{self.story[0..15]}..."
   end
 
-  def treat_status
-    false
-  end
   def owner_id
     self.user_id
   end
