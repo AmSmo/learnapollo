@@ -4,7 +4,7 @@ module Types
     field :users, [Types::UserType], null: false,
       description: "Returns Users"
     def users
-      User.all
+      User.all.includes(:morsels)
     end
 
     field :doggos, Types::PaginatedDoggosType, null: false,
@@ -15,7 +15,7 @@ module Types
     field :has_more, Boolean, null: false,
       description: "Any more"
     def doggos(limit: 10, cursor: nil)
-     return {doggos: Doggo.all.limit(limit), has_more: false}
+     return {doggos: Doggo.all.includes(:morsels).includes(:owner).limit(limit), has_more: false}
     end
 
     field :doggo, Types::DoggoType, null: true,

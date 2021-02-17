@@ -22,7 +22,7 @@ export const DogUpdate: React.FC<DoggoProps> = ({}) => {
   if (loading) {
     return <LayOut>Loading...</LayOut>;
   }
-  if (!data?.dog) {
+  if (!data?.doggo) {
     return (
       <LayOut>
         <Box>No such pup!</Box>
@@ -34,16 +34,16 @@ export const DogUpdate: React.FC<DoggoProps> = ({}) => {
     <LayOut variant="small">
       <Formik
         initialValues={{
-          id: data?.dog?.id,
-          name: data.dog.name,
-          story: data.dog.story,
+          id: data?.doggo?.id,
+          name: data.doggo.name,
+          story: data.doggo.story,
         }}
         onSubmit={async (values: UpdateDogMutationVariables, { setErrors }) => {
           const resp = await updateDog({
             variables: { ...values },
           });
           if (!resp.errors) {
-            router.push(`/doggo/${data?.dog?.id}`);
+            router.push(`/doggo/${data?.doggo?.id}`);
           }
         }}
       >
