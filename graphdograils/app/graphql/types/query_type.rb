@@ -15,7 +15,17 @@ module Types
     field :has_more, Boolean, null: false,
       description: "Any more"
     def doggos(limit: 10, cursor: nil)
-     return {doggos: Doggo.all.includes(:morsels).includes(:owner).limit(limit), has_more: false}
+      realLimit = [50,limit].min
+      realLimitPlusOne = realLimit + 1
+      if cursor
+        
+        last_date = cursor
+        doggos = Doggo.includes(:morsels).includes(:owner).where("created_at > ?", cursor.to_datetime ).order(:created_at).limit(realLimitPlusOne)
+        return {doggos: doggos.slice(0, realLimit), has_more: doggos.length == realLimitPlusOne}
+      else
+        doggos = Doggo.includes(:morsels).includes(:owner).order(:created_at).limit(realLimitPlusOne)
+        return {doggos: doggos.slice(0, realLimit) , has_more: doggos.length == realLimitPlusOne}
+      end
     end
 
     field :doggo, Types::DoggoType, null: true,

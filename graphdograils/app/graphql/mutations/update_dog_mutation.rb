@@ -6,7 +6,7 @@ module Mutations
         
 
         
-       payload_type Types::DoggoType
+        payload_type Types::DoggoType
         def resolve(id:, name:, story:)
             current_dog = Doggo.find_by(id: id)
             
